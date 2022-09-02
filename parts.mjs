@@ -85,8 +85,26 @@ function makeBoard(axisX,axisY){
 }
 
 function makeCamp(name,advanceSide,unitsSymbols){
-    let campUnits = [];
+    const campUnits = [];
     const campUnitsSymbols = unitsSymbols;
+    
+    let representative = null;
+    let representativesRank = null;
+
+    function setRepresentative(){
+        if(representative == null){
+            if(representativesRank != null){
+                for(let idx in campUnits){
+                    const unit = campUnits[idx];
+                    if(representativesRank == unit.getRank()){
+                        representative = unit;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     return {
         getName:function(){
             return name;
@@ -101,6 +119,7 @@ function makeCamp(name,advanceSide,unitsSymbols){
             }
             campUnits.push(unit);
             unit.setCamp(this);
+            setRepresentative(unit.getRank());
         },
         isInvolved:function(unit){
             return campUnits.includes(unit);
@@ -120,6 +139,17 @@ function makeCamp(name,advanceSide,unitsSymbols){
         },
         getUnitsSymbol(notation){
             return campUnitsSymbols[notation];
+        },
+        setRepresentativesRank:function(rank){
+            if(representativesRank == null){
+                representativesRank = rank;
+                setRepresentative();
+            }else{
+                throw 'RepresentativesRankAlreadySetException'
+            }
+        },
+        getRepresentative:function(){
+            return representative;
         }
     }
 }

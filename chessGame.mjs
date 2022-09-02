@@ -7,13 +7,15 @@ function standardGameSetter(){
     const chessBoard = makeBoard(axisX,axisY);
 
     const white = makeCamp('white','upside', {K:'♔',R:'♖'});
+    white.setRepresentativesRank('K');
     const black = makeCamp('black', 'donwside', {K:'♚',R:'♜'});
 
     const kMaker = kingMaker(chessBoard);
     kMaker.setCamp(white);
     kMaker.make(chessBoard.findPositionByNotation('e1'));
     kMaker.setCamp(black);
-    kMaker.make(chessBoard.findPositionByNotation('e8'))
+    kMaker.make(chessBoard.findPositionByNotation('e8'));
+    black.setRepresentativesRank('K');
 
     const rMaker = rookMaker(chessBoard);
     rMaker.setCamp(white);
