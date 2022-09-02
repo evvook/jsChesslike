@@ -37,7 +37,9 @@ function rookMaker(board){
             camp = pCamp;
         },
         make:function(position){
-            const rook = makePiece('R',[makeRooksMovePath,makeRooksAttackPath]);
+            const rooksPrototype = makePiece('R',[makeRooksMovePath,makeRooksAttackPath]);
+            const rook = extendsPieceToChessPiece(rooksPrototype);
+
             rook.initPosition(position);
             if(camp != null){
                 camp.join(rook);
@@ -68,14 +70,39 @@ function kingMaker(board){
             camp = pCamp;
         },
         make:function(position){
-            const king = makePiece('K',[makeKingsMovePath,makeKingsAttackPath]);
+            const kingsPrototype = makePiece('K',[makeKingsMovePath,makeKingsAttackPath]);
+            const king = extendsPieceToChessPiece(kingsPrototype);
+
+            //기능을 확장시킨 킹을 보드에 위치시킴 & 진영에 포함시킴
             king.initPosition(position);
             if(camp != null){
                 camp.join(king);
             }
-            return king;
         }
     };
+}
+
+function extendsPieceToChessPiece(piecesPrototype){
+    function piecesExtends(){
+        let hasMoved = false;
+        return {
+            isMoved:function(){
+                return hasMoved;
+            },
+            move:function(){
+                hasMoved = true;
+            }
+        }
+    }
+
+    const piece = Object.create(piecesPrototype);
+    Object.assign(piece,piecesExtends());
+    piece.moveTo = function(position){
+        piecesPrototype.moveTo(position)
+        this.move();
+    }
+
+    return piece;
 }
 
 export{
