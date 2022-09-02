@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<script type="text/javascript">
+    var mgr = null;
+    var undoGame = null;
+</script>
 <script type="module">
     import * as cgm from "./chessGame.mjs";
     import * as dv from "./drawView.mjs";
@@ -26,6 +30,16 @@
         
         dv.drawGame(manager.getBoardAxis(),manager.getGameContext(),manager.getMovePath(),click);
     }
+
+    function undo(){
+        manager.undo()
+        dv.drawGame(manager.getBoardAxis(),manager.getGameContext(),null,click);
+    }
+
+    mgr = manager;
+    undoGame = undo;
+ 
+
 </script>
 <body>
     <div id="board"></div>

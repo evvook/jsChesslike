@@ -50,6 +50,7 @@ function gameManager(){
     let oppositeCamp = black;
 
     let selectedPiece = null;
+    let moves = [];
 
     function selectPiece(notation){
         const position = board.findPositionByNotation(notation);
@@ -134,13 +135,27 @@ function gameManager(){
                 }
                 //그 외 경우면 수 실행(moveTo)
                 else{
-                    selectedPiece.moveTo(board.findPositionByNotation(notation))
+                    const from = selectedPiece.getPosition();
+                    const to = board.findPositionByNotation(notation);
+                    const removedPiece = selectedPiece.moveTo(to);
+                    moves.push({from:from,to:to,removedPiece:removedPiece});
                     unselectPiece();
                     [activeCamp, oppositeCamp] = [oppositeCamp, activeCamp]
                 }
             }
         },
+        undo:function(){
+            const move = moves.pop();
+            const from = move.from;
+            const to = move.to;
+            const removedPiece = move.removedPiece;
+            const movedPiece = to.getPiece();
 
+            movedPiece.moveTo(from);
+            to.setPiece(removedPiece);
+
+            [activeCamp, oppositeCamp] = [oppositeCamp, activeCamp];
+        }
     }
 }
 

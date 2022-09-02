@@ -122,7 +122,20 @@ function makeCamp(name,advanceSide,unitsSymbols){
             setRepresentative(unit.getRank());
         },
         isInvolved:function(unit){
-            return campUnits.includes(unit);
+            if(campUnits.includes(unit)){
+                return true;
+            }else{
+                // for(let idx in campUnits){
+                //     let campUnit = campUnits[idx];
+                //     if(campUnit.prorotype == unit){
+                //         return true;
+                //     }
+                // }
+                if(campUnits.map((campUnit)=>{ return campUnit.prototype }).includes(unit)){
+                    return true;
+                }
+            }
+            return false;
         },
         getCampUnits(){
             return campUnits;
@@ -162,8 +175,10 @@ function makePiece(rank,pieceMoveMakers){
     let spacialChar = null;
 
     function setPosition(piece, position){
+        const removedPiece = position.getPiece();
         onPosition = position;
         onPosition.setPiece(piece);
+        return removedPiece;
     }
     function clearPosition(){
         onPosition.setPiece(null);
@@ -208,6 +223,7 @@ function makePiece(rank,pieceMoveMakers){
         },
         moveTo:function(position){
             setPaths();
+            let removedPiece = null;
             //같은 위치 안 됨
             if(onPosition.equals(position)){
                 throw 'CanNotMoveSamePositionException';
@@ -217,13 +233,14 @@ function makePiece(rank,pieceMoveMakers){
                 let path = paths[idx];
                 if(path.includes(position)){
                     clearPosition();
-                    setPosition(this,position);
+                    removedPiece = setPosition(this,position);
                     break;
                 }
             }
             if(!position.equals(onPosition)){
                 throw 'NotMoveOutOfPathException';
             }
+            return removedPiece;
         },
         getPath:function(){
             setPaths();

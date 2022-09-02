@@ -97,9 +97,12 @@ function extendsPieceToChessPiece(piecesPrototype){
 
     const piece = Object.create(piecesPrototype);
     Object.assign(piece,piecesExtends());
+
+    piece.prototype = piecesPrototype;
+
     piece.moveTo = function(position){
-        piecesPrototype.moveTo(position)
         this.move();
+        return piecesPrototype.moveTo(position);
     }
 
     return piece;
