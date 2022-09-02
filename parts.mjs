@@ -171,7 +171,7 @@ function makePiece(rank,pieceMoveMakers){
                 throw 'AlreadyInvolvedSomeCampException';
             }
             involvedComp = camp;
-            spacialChar = camp.getUnitsSymbol('R');
+            spacialChar = camp.getUnitsSymbol(rank);
         },
         getCamp:function(){
             return involvedComp;

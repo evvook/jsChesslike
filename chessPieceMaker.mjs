@@ -47,6 +47,38 @@ function rookMaker(board){
     };
 }
 
+function kingMaker(board){
+    const pFinders1 = [makePositionFinderNorth(board)];
+    const pFinders2 = [makePositionFinderNorthEast(board)];
+    const pFinders3 = [makePositionFinderEast(board)];
+    const pFinders4 = [makePositionFinderSouthEast(board)];
+    const pFinders5 = [makePositionFinderSouth(board)];
+    const pFinders6 = [makePositionFinderSouthWest(board)];
+    const pFinders7 = [makePositionFinderWest(board)];
+    const pFinders8 = [makePositionFinderNorthWest(board)];
+
+    const pFindersGrp = [pFinders1,pFinders2,pFinders3,pFinders4,pFinders5,pFinders6,pFinders7,pFinders8]
+
+    const makeKingsMovePath = makeMovePathOn(pFindersGrp,getMoveFilter());
+    const makeKingsAttackPath = makeAttackPathOn(pFindersGrp,getAttackFilter());
+
+    let camp = null;
+    return {
+        setCamp(pCamp){
+            camp = pCamp;
+        },
+        make:function(position){
+            const king = makePiece('K',[makeKingsMovePath,makeKingsAttackPath]);
+            king.initPosition(position);
+            if(camp != null){
+                camp.join(king);
+            }
+            return king;
+        }
+    };
+}
+
 export{
+    kingMaker,
     rookMaker
 }

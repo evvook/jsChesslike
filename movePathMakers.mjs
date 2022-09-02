@@ -65,7 +65,7 @@ function makeAttackPathTo(pFinders,filter){
 function makeMovePathOn(pFinderGrp,filter){
     return function(position){
         let rPaths = [];
-        for(let idx in pFinders){
+        for(let idx in pFinderGrp){
             let finders = pFinderGrp[idx];
             let pathPosition = position;
             let tempPath = [];
@@ -101,7 +101,7 @@ function makeAttackPathOn(pFinderGrp,filter){
             let finders = pFinderGrp[idx];
             let pathPosition = position;
             let tempPath = [];
-            for(let pIdx in path){
+            for(let pIdx in finders){
                 try{
                     let finder = finders[pIdx]
                     pathPosition = finder.find(pathPosition);
