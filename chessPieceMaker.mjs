@@ -85,12 +85,22 @@ function kingMaker(board){
 function extendsPieceToChessPiece(piecesPrototype){
     function piecesExtends(){
         let hasMoved = false;
+        let relativeCount = 0;
         return {
             isMoved:function(){
                 return hasMoved;
             },
             move:function(){
                 hasMoved = true;
+            },
+            countTurn:function(){
+                relativeCount++;
+            },
+            countBack:function(){
+                relativeCount -= 1;
+                if(relativeCount == 0){
+                    hasMoved = false;
+                }
             }
         }
     }
@@ -102,7 +112,18 @@ function extendsPieceToChessPiece(piecesPrototype){
 
     piece.moveTo = function(position){
         this.move();
-        return piecesPrototype.moveTo(position);
+        this.countTurn();
+        return piecesPrototype.moveTo(this.getPosition(),position);
+    }
+
+    piece.moveBack = function(move){
+        const from = move.from;
+        const to = move.to;
+        const removedPiece = move.removedPiece;
+
+        this.countBack();
+        piecesPrototype.moveBack(this.getPosition(),from);
+        to.setPiece(removedPiece);
     }
 
     return piece;

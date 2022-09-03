@@ -124,16 +124,8 @@ function makeCamp(name,advanceSide,unitsSymbols){
         isInvolved:function(unit){
             if(campUnits.includes(unit)){
                 return true;
-            }else{
-                // for(let idx in campUnits){
-                //     let campUnit = campUnits[idx];
-                //     if(campUnit.prorotype == unit){
-                //         return true;
-                //     }
-                // }
-                if(campUnits.map((campUnit)=>{ return campUnit.prototype }).includes(unit)){
-                    return true;
-                }
+            }else if(campUnits.map((campUnit)=>{ return campUnit.prototype }).includes(unit)){
+                return true;
             }
             return false;
         },
@@ -221,26 +213,32 @@ function makePiece(rank,pieceMoveMakers){
         getCamp:function(){
             return involvedComp;
         },
-        moveTo:function(position){
+        moveTo:function(from,to){
             setPaths();
             let removedPiece = null;
             //같은 위치 안 됨
-            if(onPosition.equals(position)){
+            if(from.equals(to)){
                 throw 'CanNotMoveSamePositionException';
             }
             //그외의 경우
             for(let idx in paths){
                 let path = paths[idx];
-                if(path.includes(position)){
+                if(path.includes(to)){
+                    const piece = from.getPiece();
                     clearPosition();
-                    removedPiece = setPosition(this,position);
+                    removedPiece = setPosition(piece,to);
                     break;
                 }
             }
-            if(!position.equals(onPosition)){
+            if(!to.equals(onPosition)){
                 throw 'NotMoveOutOfPathException';
             }
             return removedPiece;
+        },
+        moveBack:function(from,to){
+            const piece = from.getPiece();
+            clearPosition();
+            setPosition(piece,to);
         },
         getPath:function(){
             setPaths();

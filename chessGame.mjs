@@ -138,7 +138,7 @@ function gameManager(){
                     const from = selectedPiece.getPosition();
                     const to = board.findPositionByNotation(notation);
                     const removedPiece = selectedPiece.moveTo(to);
-                    moves.push({from:from,to:to,removedPiece:removedPiece});
+                    moves.push({from:from,to:to,removedPiece:removedPiece,movedPiece:selectedPiece});
                     unselectPiece();
                     [activeCamp, oppositeCamp] = [oppositeCamp, activeCamp]
                 }
@@ -146,13 +146,8 @@ function gameManager(){
         },
         undo:function(){
             const move = moves.pop();
-            const from = move.from;
-            const to = move.to;
-            const removedPiece = move.removedPiece;
-            const movedPiece = to.getPiece();
-
-            movedPiece.moveTo(from);
-            to.setPiece(removedPiece);
+            const movedPiece = move.movedPiece;
+            movedPiece.moveBack(move);
 
             [activeCamp, oppositeCamp] = [oppositeCamp, activeCamp];
         }
