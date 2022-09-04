@@ -11,15 +11,17 @@ import {
 import { getMoveFilter, 
          getAttackFilter, 
          getPawnMoveFilter,
-         getPawnFirstMoveFilter 
+         getPawnFirstMoveFilter,
+         getProtectRepresentativeFilter
 } from './pieceMovesFilter.mjs';
 import { 
         makeMovePathTo,
-        makeAttackPathTo,
         makeMovePathOn,
-        makeAttackPathOn
+        getMoveMaker
 } from "./movePathMakers.mjs";
 import { makePiece } from "./parts.mjs";
+
+
 
 function rookMaker(board){
     const pFinderToNorth = makePositionFinderNorth(board);
@@ -28,8 +30,11 @@ function rookMaker(board){
     const pFinderToWest = makePositionFinderWest(board);
     const pFinders = [pFinderToNorth,pFinderToEast,pFinderToSouth,pFinderToWest]
 
-    const makeRooksMovePath = makeMovePathTo(pFinders,getMoveFilter());
-    const makeRooksAttackPath = makeAttackPathTo(pFinders,getAttackFilter());
+    const moveFilter = getMoveFilter(getProtectRepresentativeFilter())
+    const attackFilter = getAttackFilter(getProtectRepresentativeFilter());
+
+    const rookMoveMaker = getMoveMaker(makeMovePathTo(pFinders),moveFilter);
+    const rookAttackMaker = getMoveMaker(makeMovePathTo(pFinders),attackFilter);
 
     let camp = null;
     return {
@@ -37,7 +42,7 @@ function rookMaker(board){
             camp = pCamp;
         },
         make:function(position){
-            const rooksPrototype = makePiece('R',[makeRooksMovePath,makeRooksAttackPath]);
+            const rooksPrototype = makePiece('R',[rookMoveMaker,rookAttackMaker]);
             const rook = extendsPieceToChessPiece(rooksPrototype);
 
             rook.initPosition(position);
@@ -61,8 +66,13 @@ function kingMaker(board){
 
     const pFindersGrp = [pFinders1,pFinders2,pFinders3,pFinders4,pFinders5,pFinders6,pFinders7,pFinders8]
 
-    const makeKingsMovePath = makeMovePathOn(pFindersGrp,getMoveFilter());
-    const makeKingsAttackPath = makeAttackPathOn(pFindersGrp,getAttackFilter());
+    const moveFilter = getMoveFilter(getProtectRepresentativeFilter());
+    const attackFilter = getAttackFilter(getProtectRepresentativeFilter());
+
+    // const makeKingsMovePath = makeMovePathOn(pFindersGrp);
+    const kingMoveMaker = getMoveMaker(makeMovePathOn(pFindersGrp),moveFilter);
+    const kingAttackMaker = getMoveMaker(makeMovePathOn(pFindersGrp),attackFilter);
+
 
     let camp = null;
     return {
@@ -70,7 +80,7 @@ function kingMaker(board){
             camp = pCamp;
         },
         make:function(position){
-            const kingsPrototype = makePiece('K',[makeKingsMovePath,makeKingsAttackPath]);
+            const kingsPrototype = makePiece('K',[kingMoveMaker,kingAttackMaker]);
             const king = extendsPieceToChessPiece(kingsPrototype);
 
             //기능을 확장시킨 킹을 보드에 위치시킴 & 진영에 포함시킴
@@ -113,17 +123,12 @@ function extendsPieceToChessPiece(piecesPrototype){
     piece.moveTo = function(position){
         this.move();
         this.countTurn();
-        return piecesPrototype.moveTo(this.getPosition(),position);
+        return piecesPrototype.moveTo(position);
     }
 
     piece.moveBack = function(move){
-        const from = move.from;
-        const to = move.to;
-        const removedPiece = move.removedPiece;
-
         this.countBack();
-        piecesPrototype.moveBack(this.getPosition(),from);
-        to.setPiece(removedPiece);
+        piecesPrototype.moveBack(move);
     }
 
     return piece;

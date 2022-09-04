@@ -9,6 +9,8 @@ function standardGameSetter(){
     const white = makeCamp('white','upside', {K:'♔',R:'♖'});
     white.setRepresentativesRank('K');
     const black = makeCamp('black', 'donwside', {K:'♚',R:'♜'});
+    white.setOpposite(black);
+    black.setOpposite(white);
 
     const kMaker = kingMaker(chessBoard);
     kMaker.setCamp(white);
@@ -62,9 +64,16 @@ function gameManager(){
             throw 'NotSelectInactivePieceException';
         }
         selectedPiece = piece;
+        selectedPiece.setPath();
     }
     function unselectPiece(){
+        selectedPiece.clearPath();
         selectedPiece = null;
+    }
+    function switchActiveCamp(){
+        activeCamp.setActiveStatus(false);
+        oppositeCamp.setActiveStatus(true);
+        [activeCamp, oppositeCamp] = [oppositeCamp, activeCamp]
     }
 
     return {
@@ -124,6 +133,11 @@ function gameManager(){
             const position = board.findPositionByNotation(notation);
             if(selectedPiece == null){
                 selectPiece(notation);
+
+                //수가 없다면 언셀렉트
+                if(selectedPiece.getPath().length == 0){
+                    unselectPiece();
+                }
             }else{
                 //같은위치 선택하면 언셀렉트
                 if(position.equals(selectedPiece.getPosition())){
@@ -140,7 +154,7 @@ function gameManager(){
                     const removedPiece = selectedPiece.moveTo(to);
                     moves.push({from:from,to:to,removedPiece:removedPiece,movedPiece:selectedPiece});
                     unselectPiece();
-                    [activeCamp, oppositeCamp] = [oppositeCamp, activeCamp]
+                    switchActiveCamp();
                 }
             }
         },
@@ -149,7 +163,7 @@ function gameManager(){
             const movedPiece = move.movedPiece;
             movedPiece.moveBack(move);
 
-            [activeCamp, oppositeCamp] = [oppositeCamp, activeCamp];
+            switchActiveCamp();
         }
     }
 }

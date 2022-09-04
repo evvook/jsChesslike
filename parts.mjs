@@ -86,10 +86,15 @@ function makeBoard(axisX,axisY){
 
 function makeCamp(name,advanceSide,unitsSymbols){
     const campUnits = [];
+    const removedCampUnits = [];
     const campUnitsSymbols = unitsSymbols;
     
     let representative = null;
     let representativesRank = null;
+
+    let opposite = null;
+
+    let activeStatus = false;
 
     function setRepresentative(){
         if(representative == null){
@@ -150,17 +155,47 @@ function makeCamp(name,advanceSide,unitsSymbols){
                 representativesRank = rank;
                 setRepresentative();
             }else{
-                throw 'RepresentativesRankAlreadySetException'
+                throw 'RepresentativesRankAlreadySetException';
             }
         },
         getRepresentative:function(){
             return representative;
+        },
+        setOpposite:function(camp){
+            if(opposite == null){
+                opposite = camp;
+            }else{
+                throw 'OppositeCampAlreadySetException';
+            }
+        },
+        getOpposite:function(){
+            return opposite;
+        },
+        setActiveStatus:function(pActiveStatus){
+            activeStatus = pActiveStatus;
+        },
+        isActive:function(){
+            return activeStatus;
+        },
+        removeUnit:function(unit){
+            const removedUnitsIndex = campUnits.indexOf(unit);
+            if(removedUnitsIndex != -1){
+                campUnits.splice(removedUnitsIndex,1);
+                removedCampUnits.push(unit);
+            }
+        },
+        restoreUnit:function(unit){
+            const restoredUnitsIndex = removedCampUnits.indexOf(unit);
+            if(restoredUnitsIndex != -1){
+                removedCampUnits.splice(restoredUnitsIndex);
+                campUnits.push(unit);
+            }
         }
     }
 }
 
 function makePiece(rank,pieceMoveMakers){
-    let involvedComp = null;
+    let involvedCamp = null;
     let onPosition = null;
     let paths = null;
 
@@ -178,11 +213,15 @@ function makePiece(rank,pieceMoveMakers){
     }
 
     function setPaths(){
-        paths = [];
+        paths = null;
+        const tempPath = []
         for(let idx in pieceMoveMakers){
-            let moveMaker = pieceMoveMakers[idx];
-            paths.push(...moveMaker(onPosition));
+            const moveMaker = pieceMoveMakers[idx];
+            const paths = moveMaker.getPath(onPosition);
+            
+            tempPath.push(...paths);
         }
+        paths = tempPath;
     }
 
     return {
@@ -204,45 +243,81 @@ function makePiece(rank,pieceMoveMakers){
         },
         setCamp:function(camp){
             //이미 속해있는 경우
-            if(involvedComp != null){
+            if(involvedCamp != null){
                 throw 'AlreadyInvolvedSomeCampException';
             }
-            involvedComp = camp;
+            involvedCamp = camp;
             spacialChar = camp.getUnitsSymbol(rank);
         },
         getCamp:function(){
-            return involvedComp;
+            return involvedCamp;
         },
-        moveTo:function(from,to){
-            setPaths();
+        moveTo:function(to){
+            const from = onPosition;
             let removedPiece = null;
-            //같은 위치 안 됨
-            if(from.equals(to)){
-                throw 'CanNotMoveSamePositionException';
-            }
-            //그외의 경우
-            for(let idx in paths){
-                let path = paths[idx];
-                if(path.includes(to)){
-                    const piece = from.getPiece();
-                    clearPosition();
-                    removedPiece = setPosition(piece,to);
-                    break;
+            if(paths == null){//
+                
+                const piece = from.getPiece();
+                clearPosition();
+                removedPiece = setPosition(piece,to);
+                if(removedPiece!=null){
+                    removedPiece.beRemovedCamp();
+                }
+
+            }else{
+
+                for(let idx in paths){
+                    let path = paths[idx];
+                    if(path.includes(to)){
+                        const piece = from.getPiece();
+                        clearPosition();
+                        removedPiece = setPosition(piece,to);
+                        break;                    
+                    }
+                }
+                if(!to.equals(onPosition)){
+                    throw 'NotMoveOutOfPathException';
                 }
             }
-            if(!to.equals(onPosition)){
-                throw 'NotMoveOutOfPathException';
+            if(removedPiece!=null){
+                removedPiece.beRemovedCamp();
             }
             return removedPiece;
         },
-        moveBack:function(from,to){
-            const piece = from.getPiece();
+        moveBack:function(move){
+            const from = move.from;
+            const to = move.to;
+            const removedPiece = move.removedPiece;
+
+            const piece = to.getPiece();
+            clearPosition();
+            setPosition(piece,from);
+            to.setPiece(removedPiece);
+            if(removedPiece!=null){
+                removedPiece.beRestoredCamp();
+            }
+        },
+        setPath:function(){
+            setPaths();
+        },
+        getPath:function(){
+            return paths;
+        },
+        clearPath:function(){
+            paths = null;
+        },
+        changePosition:function(to){
+            const piece = onPosition.getPiece(); 
             clearPosition();
             setPosition(piece,to);
         },
-        getPath:function(){
-            setPaths();
-            return paths;
+        beRemovedCamp:function(){
+            const camp = this.getCamp()
+            camp.removeUnit(this);
+        },
+        beRestoredCamp:function(){
+            const camp = this.getCamp();
+            camp.restoreUnit(this);
         }
     }
 }
