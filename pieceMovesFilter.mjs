@@ -101,7 +101,6 @@ function getProtectRepresentativeFilter(filter){
     
             let check = false; 
             oppositeUnits.forEach((unit)=>{
-                unit.setPath();
                 const paths = unit.getPath();
                 paths.forEach((path)=>{
                     path.forEach((position)=>{

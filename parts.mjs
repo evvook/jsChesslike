@@ -255,7 +255,9 @@ function makePiece(rank,pieceMoveMakers){
         moveTo:function(to){
             const from = onPosition;
             let removedPiece = null;
-            if(paths == null){//
+
+            //path가 없는 경우는 경로를 필터링하기 위해 moveTo를 호출하는 경우임
+            if(paths == null){
                 
                 const piece = from.getPiece();
                 clearPosition();
@@ -263,7 +265,6 @@ function makePiece(rank,pieceMoveMakers){
                 if(removedPiece!=null){
                     removedPiece.beRemovedCamp();
                 }
-
             }else{
 
                 for(let idx in paths){
@@ -297,19 +298,9 @@ function makePiece(rank,pieceMoveMakers){
                 removedPiece.beRestoredCamp();
             }
         },
-        setPath:function(){
-            setPaths();
-        },
         getPath:function(){
+            setPaths();
             return paths;
-        },
-        clearPath:function(){
-            paths = null;
-        },
-        changePosition:function(to){
-            const piece = onPosition.getPiece(); 
-            clearPosition();
-            setPosition(piece,to);
         },
         beRemovedCamp:function(){
             const camp = this.getCamp()

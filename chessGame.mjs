@@ -64,10 +64,8 @@ function gameManager(){
             throw 'NotSelectInactivePieceException';
         }
         selectedPiece = piece;
-        selectedPiece.setPath();
     }
     function unselectPiece(){
-        selectedPiece.clearPath();
         selectedPiece = null;
     }
     function switchActiveCamp(){
@@ -169,6 +167,5 @@ function gameManager(){
 }
 
 export{
-    //standardGameSetter,
     gameManager
 }
