@@ -163,8 +163,9 @@ function gameManager(){
                 else{
                     const from = selectedPiece.getPosition();
                     const to = board.findPositionByNotation(notation);
+                    const moveType = selectedPiece.getMoveType(to);
                     const removedPiece = selectedPiece.moveTo(to);
-                    moves.push({from:from,to:to,removedPiece:removedPiece,movedPiece:selectedPiece});
+                    moves.push({from:from,to:to,removedPiece:removedPiece,movedPiece:selectedPiece,moveType:moveType});
                     unselectPiece();
                     switchActiveCamp();
                 }

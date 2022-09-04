@@ -35,8 +35,8 @@ function rookMaker(board){
     const moveFilter = getMoveFilter(getProtectRepresentativeFilter())
     const attackFilter = getAttackFilter(getProtectRepresentativeFilter());
 
-    const rookMoveMaker = getMoveMaker(makeMovePathTo(pFinders),moveFilter);
-    const rookAttackMaker = getMoveMaker(makeMovePathTo(pFinders),attackFilter);
+    const rookMoveMaker = getMoveMaker('move',makeMovePathTo(pFinders),moveFilter);
+    const rookAttackMaker = getMoveMaker('attack',makeMovePathTo(pFinders),attackFilter);
 
     let camp = null;
     return {
@@ -65,15 +65,20 @@ function kingMaker(board){
     const pFinders6 = [makePositionFinderSouthWest(board)];
     const pFinders7 = [makePositionFinderWest(board)];
     const pFinders8 = [makePositionFinderNorthWest(board)];
-
     const pFindersGrp = [pFinders1,pFinders2,pFinders3,pFinders4,pFinders5,pFinders6,pFinders7,pFinders8];
+
+    const cpFinder1 = [makePositionFinderEast(board),makePositionFinderEast(board)];
+    const cpFinder2 = [makePositionFinderWest(board),makePositionFinderWest(board)];
+    const cpFindersGrp = [cpFinder1,cpFinder2];
 
     const moveFilter = getMoveFilter(getProtectRepresentativeFilter());
     const attackFilter = getAttackFilter(getProtectRepresentativeFilter());
+    const castlingFilter = getProtectRepresentativeFilter();
 
     // const makeKingsMovePath = makeMovePathOn(pFindersGrp);
-    const kingMoveMaker = getMoveMaker(makeMovePathOn(pFindersGrp),moveFilter);
-    const kingAttackMaker = getMoveMaker(makeMovePathOn(pFindersGrp),attackFilter);
+    const kingMoveMaker = getMoveMaker('move',makeMovePathOn(pFindersGrp),moveFilter);
+    const kingAttackMaker = getMoveMaker('attack',makeMovePathOn(pFindersGrp),attackFilter);
+    const castlingMaker = getMoveMaker('castling',makeMovePathOn(cpFindersGrp),castlingFilter);
 
     let camp = null;
     return {
@@ -81,8 +86,8 @@ function kingMaker(board){
             camp = pCamp;
         },
         make:function(position){
-            const kingsPrototype = makePiece('K',[kingMoveMaker,kingAttackMaker]);
-            const king = extendsPieceToChessPiece(kingsPrototype);
+            const kingsPrototype = makePiece('K',[kingMoveMaker,kingAttackMaker,castlingMaker]);
+            const king = extendsPieceToChessPiece(kingsPrototype,board);
 
             //기능을 확장시킨 킹을 보드에 위치시킴 & 진영에 포함시킴
             king.initPosition(position);
@@ -109,8 +114,8 @@ function pawnMaker(board){
     const moveFilter = getMoveFilter(getPawnMoveFilter(getPawnFirstMoveFilter(getProtectRepresentativeFilter())));
     const attackFilter = getAttackFilter(getPawnMoveFilter(getProtectRepresentativeFilter()));
 
-    const pawnMoveMaker = getMoveMaker(makeMovePathOn(mpFindersGrp),moveFilter);
-    const pawnAttackMaker = getMoveMaker(makeMovePathOn(apFindersGrp),attackFilter);
+    const pawnMoveMaker = getMoveMaker('move',makeMovePathOn(mpFindersGrp),moveFilter);
+    const pawnAttackMaker = getMoveMaker('attack',makeMovePathOn(apFindersGrp),attackFilter);
 
     let camp = null;
 
@@ -145,8 +150,8 @@ function knightMaker(board){
     const moveFilter = getKnightMoveFilter(getProtectRepresentativeFilter());
     const attackFilter = getKnightAttackFilter(getProtectRepresentativeFilter());
 
-    const knightMoveMaker = getMoveMaker(makeMovePathOn(pFindersGrp),moveFilter);
-    const knightAttackMaker = getMoveMaker(makeMovePathOn(pFindersGrp),attackFilter);
+    const knightMoveMaker = getMoveMaker('move',makeMovePathOn(pFindersGrp),moveFilter);
+    const knightAttackMaker = getMoveMaker('attack',makeMovePathOn(pFindersGrp),attackFilter);
 
     let camp = null;
 
@@ -166,7 +171,7 @@ function knightMaker(board){
     };
 }
 
-function extendsPieceToChessPiece(piecesPrototype){
+function extendsPieceToChessPiece(piecesPrototype,board){
     function piecesExtends(){
         let hasMoved = false;
         let relativeCount = 0;
@@ -188,21 +193,68 @@ function extendsPieceToChessPiece(piecesPrototype){
             }
         }
     }
+    
+    function castling(piece,to){
+
+        let rooksPositionsNotation;
+        let rooksCastlingPositionNotation;
+
+        const deferOfPositions = to.getAxisX().charCodeAt(0) - piece.getPosition().getAxisX().charCodeAt(0);
+        if(deferOfPositions > 0){
+            rooksPositionsNotation = 'h'+piece.getPosition().getAxisY();
+            rooksCastlingPositionNotation = 'f'+piece.getPosition().getAxisY();
+        }else{
+            rooksPositionsNotation = 'a'+piece.getPosition().getAxisY();
+            rooksCastlingPositionNotation = 'd'+piece.getPosition().getAxisY();
+        }
+        piece.getCamp().findCampUnits('R').forEach((unit)=>{
+            if(unit.getPosition().getLetter() == rooksPositionsNotation){
+                castlingRook = unit;
+                castlingRooksMove.from = board.findPositionByNotation(rooksPositionsNotation);
+                castlingRooksMove.to = board.findPositionByNotation(rooksCastlingPositionNotation);
+            }
+        });
+
+        piece.prototype.moveTo(to);
+        piece.move();
+        piece.countTurn();
+        castlingRook.prototype.moveTo(castlingRooksMove.to);
+        castlingRook.move();
+        castlingRook.countTurn();
+
+    }
 
     const piece = Object.create(piecesPrototype);
     Object.assign(piece,piecesExtends());
 
     piece.prototype = piecesPrototype;
 
+    let castlingRook = null;
+    let castlingRooksMove = {};
+
     piece.moveTo = function(position){
-        this.move();
-        this.countTurn();
-        return piecesPrototype.moveTo(position);
+
+        const moveType = piecesPrototype.getMoveType(position);
+        if(moveType == 'castling'){
+            castling(this,position);
+        }else{
+            this.move();
+            this.countTurn();
+            return piecesPrototype.moveTo(position);
+        }
     }
 
     piece.moveBack = function(move){
-        this.countBack();
-        piecesPrototype.moveBack(move);
+        if(move.moveType == 'castling'){
+            this.countBack();
+            castlingRook.countBack();
+
+            piecesPrototype.moveBack(move);
+            castlingRook.prototype.moveBack(castlingRooksMove);
+        }else{
+            this.countBack();
+            piecesPrototype.moveBack(move);
+        }
     }
 
     return piece;

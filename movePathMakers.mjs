@@ -60,7 +60,7 @@ function makeMovePathOn(pFinderGrp){
     }
 }
 
-function getMoveMaker(makePath,filter){
+function getMoveMaker(type,makePath,filter){
     return {
         getPath:function(from){
             const rPaths = []
@@ -70,6 +70,9 @@ function getMoveMaker(makePath,filter){
                 rPaths.push(filter(from,path));
             }
             return rPaths;
+        },
+        getType:function(){
+            return type;
         }
     }
 }

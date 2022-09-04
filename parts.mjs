@@ -198,6 +198,7 @@ function makePiece(rank,pieceMoveMakers){
     let involvedCamp = null;
     let onPosition = null;
     let paths = null;
+    let moves = null;
 
     let spacialChar = null;
 
@@ -214,10 +215,14 @@ function makePiece(rank,pieceMoveMakers){
 
     function setPaths(){
         paths = null;
+        moves = [];
+
         const tempPath = []
         for(let idx in pieceMoveMakers){
             const moveMaker = pieceMoveMakers[idx];
             const paths = moveMaker.getPath(onPosition);
+            
+            moves.push({type:moveMaker.getType(),paths:paths});
             
             tempPath.push(...paths);
         }
@@ -309,6 +314,15 @@ function makePiece(rank,pieceMoveMakers){
         beRestoredCamp:function(){
             const camp = this.getCamp();
             camp.restoreUnit(this);
+        },
+        getMoveType:function(to){
+            for(let idx in moves){
+                const move = moves[idx];
+                const filteredPath = move.paths.filter(path=>path.includes(to))
+                if(filteredPath.length>0){
+                    return move.type;
+                }
+            }
         }
     }
 }
