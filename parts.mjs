@@ -297,9 +297,19 @@ function makePiece(rank,pieceMoveMakers){
                 removedPiece.beRestoredCamp();
             }
         },
-        getPath:function(){
+        setPath:function(){
             setPaths();
+        },
+        getPath:function(){
             return paths;
+        },
+        clearPath:function(){
+            paths = null;
+        },
+        changePosition:function(to){
+            const piece = onPosition.getPiece(); 
+            clearPosition();
+            setPosition(piece,to);
         },
         beRemovedCamp:function(){
             const camp = this.getCamp()
