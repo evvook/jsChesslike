@@ -42,45 +42,82 @@ function getAttackFilter(filter){
 }
 
 function getPawnMoveFilter(filter){
-    return function(from,to){
-        let fromY = from.getAxisY();
-        let toY = to.getAxisY();
-        if(('upside' == from.getPiece().getCamp().getAdvanceSide() && toY > fromY)
-            || ('downside' == from.getPiece().getCamp().getAdvanceSide() && toY < fromY)){
-                if(filter){
-                    return filter(from,to)
-                }else{
-                    return to;
-                }
+    return function(from,path){
+        const rPath = path.map((to) => {
+            let fromY = from.getAxisY();
+            let toY = to.getAxisY();
+            if(('upside' == from.getPiece().getCamp().getAdvanceSide() && toY > fromY)
+                || ('downside' == from.getPiece().getCamp().getAdvanceSide() && toY < fromY)){
+                return to;
+            }else{
+                return null;
+            }
+        });
+        if(filter){
+            return filter(from,rPath.filter(to=>to!=null))
         }else{
-            return null;
+            return to;
         }
     }
 }
 
 function getPawnFirstMoveFilter(filter){
-    return function(from,to){
-        let fromY = from.getAxisY();
-        let toY = to.getAxisY();
-        if(('upside' == from.getPiece().getCamp().getAdvanceSide() && fromY == 2)
-            || ('downside' == from.getPiece().getCamp().getAdvanceSide() && fromY == 7)){
-            if(filter){
-                    return filter(from,to)
-                }else{
+    return function(from,path){
+        const rPath = path.map((to) => {
+            let fromY = from.getAxisY();
+            let toY = to.getAxisY();
+            if(('upside' == from.getPiece().getCamp().getAdvanceSide() && fromY == 2)
+                || ('downside' == from.getPiece().getCamp().getAdvanceSide() && fromY == 7)){
                     return to;
-                }
-        }else{
-            if(Math.abs(fromY - toY) == 1){
-                if(filter){
-                    return filter(from,to)
-                }else{
-                    return to;
-                }
             }else{
-                return null;
-            } 
+                if(Math.abs(fromY - toY) == 1){
+                    return to
+                }else{
+                    return null;
+                } 
+            }
+        });
+
+        if(filter){
+            return filter(from,rPath.filter(to=>to!=null))
+        }else{
+            return to;
         }
     }
+}
+
+function getKnightMoveFilter(filter){
+    return function(from,path){
+        const rPath = [];
+        const dPosition = path.pop();
+        if(dPosition != null && dPosition.isEmpty()){
+            rPath.push(dPosition);
+        }
+
+        if(filter){
+            return filter(from,rPath.filter(to=>to!=null))
+        }else{
+            return to;
+        }
+    }
+}
+
+function getKnightAttackFilter(filter){
+    return function(from,path){
+        const rPath = [];
+        const dPosition = path.pop();
+        if(dPosition != null && !dPosition.isEmpty()){
+            if(!from.getPiece().getCamp().isInvolved(dPosition.getPiece())){
+                rPath.push(dPosition);
+            }
+        }
+
+        if(filter){
+            return filter(from,rPath.filter(to=>to!=null))
+        }else{
+            return to;
+        }
+    }   
 }
 
 function getProtectRepresentativeFilter(filter){
@@ -136,5 +173,7 @@ export{
     getAttackFilter,
     getPawnMoveFilter,
     getPawnFirstMoveFilter,
+    getKnightMoveFilter,
+    getKnightAttackFilter,
     getProtectRepresentativeFilter
 }

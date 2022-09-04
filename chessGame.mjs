@@ -1,14 +1,14 @@
 import { makeBoard ,makeCamp } from "./parts.mjs";
-import { kingMaker,rookMaker } from "./chessPieceMaker.mjs";
+import { kingMaker,rookMaker,knightMaker,pawnMaker } from "./chessPieceMaker.mjs";
 
 function standardGameSetter(){
     const axisX = ['a','b','c','d','e','f','g','h'];
     const axisY = ['1','2','3','4','5','6','7','8'];
     const chessBoard = makeBoard(axisX,axisY);
 
-    const white = makeCamp('white','upside', {K:'♔',R:'♖'});
+    const white = makeCamp('white','upside', {K:'♔',R:'♖',N:'♘',P:'♙'});
     white.setRepresentativesRank('K');
-    const black = makeCamp('black', 'donwside', {K:'♚',R:'♜'});
+    const black = makeCamp('black', 'downside', {K:'♚',R:'♜',N:'♞',P:'♟'});
     white.setOpposite(black);
     black.setOpposite(white);
 
@@ -26,6 +26,20 @@ function standardGameSetter(){
     rMaker.setCamp(black);
     rMaker.make(chessBoard.findPositionByNotation('a8'));
     rMaker.make(chessBoard.findPositionByNotation('h8'));
+
+    const nMaker = knightMaker(chessBoard);
+    nMaker.setCamp(white);
+    nMaker.make(chessBoard.findPositionByNotation('b1'));
+    nMaker.make(chessBoard.findPositionByNotation('g1'));
+    nMaker.setCamp(black);
+    nMaker.make(chessBoard.findPositionByNotation('b8'));
+    nMaker.make(chessBoard.findPositionByNotation('g8'));    
+
+    const pMaker = pawnMaker(chessBoard);
+    pMaker.setCamp(white);
+    pMaker.make(chessBoard.findPositionByNotation('a2'));
+    pMaker.setCamp(black);
+    pMaker.make(chessBoard.findPositionByNotation('h7'));
 
     return {
         getBoard:function(){

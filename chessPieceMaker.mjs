@@ -12,7 +12,9 @@ import { getMoveFilter,
          getAttackFilter, 
          getPawnMoveFilter,
          getPawnFirstMoveFilter,
-         getProtectRepresentativeFilter
+         getProtectRepresentativeFilter,
+         getKnightMoveFilter,
+         getKnightAttackFilter
 } from './pieceMovesFilter.mjs';
 import { 
         makeMovePathTo,
@@ -64,7 +66,7 @@ function kingMaker(board){
     const pFinders7 = [makePositionFinderWest(board)];
     const pFinders8 = [makePositionFinderNorthWest(board)];
 
-    const pFindersGrp = [pFinders1,pFinders2,pFinders3,pFinders4,pFinders5,pFinders6,pFinders7,pFinders8]
+    const pFindersGrp = [pFinders1,pFinders2,pFinders3,pFinders4,pFinders5,pFinders6,pFinders7,pFinders8];
 
     const moveFilter = getMoveFilter(getProtectRepresentativeFilter());
     const attackFilter = getAttackFilter(getProtectRepresentativeFilter());
@@ -72,7 +74,6 @@ function kingMaker(board){
     // const makeKingsMovePath = makeMovePathOn(pFindersGrp);
     const kingMoveMaker = getMoveMaker(makeMovePathOn(pFindersGrp),moveFilter);
     const kingAttackMaker = getMoveMaker(makeMovePathOn(pFindersGrp),attackFilter);
-
 
     let camp = null;
     return {
@@ -87,6 +88,79 @@ function kingMaker(board){
             king.initPosition(position);
             if(camp != null){
                 camp.join(king);
+            }
+        }
+    };
+}
+
+function pawnMaker(board){
+    const mpFinders1 = [makePositionFinderNorth(board)];
+    const mpFinders2 = [makePositionFinderNorth(board),makePositionFinderNorth(board)];
+    const mpFinders3 = [makePositionFinderSouth(board)];
+    const mpFinders4 = [makePositionFinderSouth(board),makePositionFinderSouth(board)];
+    const mpFindersGrp = [mpFinders1,mpFinders2,mpFinders3,mpFinders4];
+
+    const apFinders1 = [makePositionFinderNorthEast(board)];
+    const apFinders2 = [makePositionFinderNorthWest(board)];
+    const apFinders3 = [makePositionFinderSouthEast(board)];
+    const apFinders4 = [makePositionFinderSouthWest(board)];
+    const apFindersGrp = [apFinders1,apFinders2,apFinders3,apFinders4];
+
+    const moveFilter = getMoveFilter(getPawnMoveFilter(getPawnFirstMoveFilter(getProtectRepresentativeFilter())));
+    const attackFilter = getAttackFilter(getPawnMoveFilter(getProtectRepresentativeFilter()));
+
+    const pawnMoveMaker = getMoveMaker(makeMovePathOn(mpFindersGrp),moveFilter);
+    const pawnAttackMaker = getMoveMaker(makeMovePathOn(apFindersGrp),attackFilter);
+
+    let camp = null;
+
+    return {
+        setCamp(pCamp){
+            camp = pCamp;
+        },
+        make:function(position){
+            const pawnsPrototype = makePiece('P',[pawnMoveMaker,pawnAttackMaker]);
+            const pawn = extendsPieceToChessPiece(pawnsPrototype);
+
+            pawn.initPosition(position);
+            if(camp != null){
+                camp.join(pawn);
+            }
+        }
+    };
+}
+
+function knightMaker(board){
+    const pFinders1 = [makePositionFinderNorth(board),makePositionFinderNorthEast(board)];
+    const pFinders2 = [makePositionFinderEast(board),makePositionFinderNorthEast(board)];
+    const pFinders3 = [makePositionFinderEast(board),makePositionFinderSouthEast(board)];
+    const pFinders4 = [makePositionFinderSouth(board),makePositionFinderSouthEast(board)];
+    const pFinders5 = [makePositionFinderSouth(board),makePositionFinderSouthWest(board)];
+    const pFinders6 = [makePositionFinderWest(board),makePositionFinderSouthWest(board)];
+    const pFinders7 = [makePositionFinderWest(board),makePositionFinderNorthWest(board)];
+    const pFinders8 = [makePositionFinderNorth(board),makePositionFinderNorthWest(board)];
+
+    const pFindersGrp = [pFinders1,pFinders2,pFinders3,pFinders4,pFinders5,pFinders6,pFinders7,pFinders8];
+
+    const moveFilter = getKnightMoveFilter(getProtectRepresentativeFilter());
+    const attackFilter = getKnightAttackFilter(getProtectRepresentativeFilter());
+
+    const knightMoveMaker = getMoveMaker(makeMovePathOn(pFindersGrp),moveFilter);
+    const knightAttackMaker = getMoveMaker(makeMovePathOn(pFindersGrp),attackFilter);
+
+    let camp = null;
+
+    return {
+        setCamp(pCamp){
+            camp = pCamp;
+        },
+        make:function(position){
+            const knightsPrototype = makePiece('N',[knightMoveMaker,knightAttackMaker]);
+            const knight = extendsPieceToChessPiece(knightsPrototype);
+
+            knight.initPosition(position);
+            if(camp != null){
+                camp.join(knight);
             }
         }
     };
@@ -136,5 +210,7 @@ function extendsPieceToChessPiece(piecesPrototype){
 
 export{
     kingMaker,
-    rookMaker
+    rookMaker,
+    knightMaker,
+    pawnMaker
 }
