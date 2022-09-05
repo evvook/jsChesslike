@@ -229,13 +229,21 @@ function extendsPieceToChessPiece(piecesPrototype,board){
     function castling(piece,to){
 
         prepareCastling(piece,to);
+        try{
+            piece.move();
+            piece.countTurn();
+            castlingRook.move();
+            castlingRook.countTurn();
 
-        piece.prototype.moveTo(to);
-        piece.move();
-        piece.countTurn();
-        castlingRook.prototype.moveTo(castlingRooksMove.to);
-        castlingRook.move();
-        castlingRook.countTurn();
+            piece.prototype.moveTo(to);
+            castlingRook.prototype.moveTo(castlingRooksMove.to);
+        }catch(e){
+            if(e == 'NotMoveOutOfPathException'){
+                piece.countBack();
+                castlingRook.countBack();
+            }
+            throw e;
+        }
 
     }
 
@@ -253,9 +261,16 @@ function extendsPieceToChessPiece(piecesPrototype,board){
         if(moveType == 'castling'){
             castling(this,position);
         }else{
-            this.move();
-            this.countTurn();
-            return piecesPrototype.moveTo(position);
+            try{
+                this.move();
+                this.countTurn();
+                return piecesPrototype.moveTo(position);
+            }catch(e){
+                if(e == 'NotMoveOutOfPathException'){
+                    this.countBack();
+                }
+                throw e;
+            }
         }
     }
 

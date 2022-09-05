@@ -26,7 +26,33 @@
         let piece = document.querySelector(pieceSelector);
         
         console.log(position.id);
-        manager.selectPosition(position.id);
+        try{
+            manager.selectPosition(position.id);
+        }catch(e){
+            let message;
+            if(e == 'NotSelectInactivePieceException'){
+                message = '선택할 수 없는 기물 입니다.';
+            }else if(e == 'ThereIsAnyPieceException'){
+                message = '선택한 위치에 기물이 없습니다.';
+            }else if(e == 'NotMoveOutOfPathException'){
+                message = '가능한 수가 아닙니다.';
+            }else{
+                throw e;
+            }
+            //alert(message);
+            let dialog = document.querySelector('dialog');
+            dialog.addEventListener('click', (event) => {
+            if (event.target.nodeName === 'DIALOG') {
+                dialog.close();
+            }});
+            (()=>{
+                dialog.innerText = message;
+                dialog.showModal();
+                // setTimeout(()=>{
+                //     dialog.close();
+                // },1500)
+            })()
+        }
         
         dv.drawGame(manager.getBoardAxis(),manager.getGameContext(),manager.getMovePath(),click);
     }
@@ -42,6 +68,7 @@
 
 </script>
 <body>
+    <dialog></dialog>
     <div id="board"></div>
 </body>
 </html>
