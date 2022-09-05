@@ -150,6 +150,9 @@ function getCastlingFilter(filter,board){
             const king = from.getPiece();
             const castlingInfo = king.getCastlingInfo(to);
             const rook = castlingInfo.rook;
+            if(rook == null){
+                return null;
+            }
 
             //조건1. 킹과 룩은 한 번도 움직이지 않아야 함
             if(king.isMoved() || rook.isMoved()){
@@ -160,9 +163,15 @@ function getCastlingFilter(filter,board){
             const rooksPassdPositions = [];
             const castlingSide = castlingInfo.castlingSide;
             if(castlingSide == 'kingSide'){
+                if(rook.getPosition().getLetter() != 'h'+king.getPosition().getAxisY()){
+                    return null;
+                }
                 rooksPassdPositions.push(board.findPositionByNotation('f'+king.getPosition().getAxisY()));
                 kingsPassedPositions.push(board.findPositionByNotation('g'+king.getPosition().getAxisY()));
             }else if(castlingSide == 'queenSide'){
+                if(rook.getPosition().getLetter() != 'a'+king.getPosition().getAxisY()){
+                    return null;
+                }
                 rooksPassdPositions.push(board.findPositionByNotation('b'+king.getPosition().getAxisY()));
                 rooksPassdPositions.push(board.findPositionByNotation('c'+king.getPosition().getAxisY()));
                 kingsPassedPositions.push(board.findPositionByNotation('d'+king.getPosition().getAxisY()));

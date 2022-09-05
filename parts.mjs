@@ -129,7 +129,7 @@ function makeCamp(name,advanceSide,unitsSymbols){
         isInvolved:function(unit){
             if(campUnits.includes(unit)){
                 return true;
-            }else if(campUnits.map((campUnit)=>{ return campUnit.prototype }).includes(unit)){
+            }else if(campUnits.map((campUnit)=>{ return Object.getPrototypeOf(campUnit) }).includes(unit)){
                 return true;
             }
             return false;

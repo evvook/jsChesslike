@@ -235,8 +235,8 @@ function extendsPieceToChessPiece(piecesPrototype,board){
             castlingRook.move();
             castlingRook.countTurn();
 
-            piece.prototype.moveTo(to);
-            castlingRook.prototype.moveTo(castlingRooksMove.to);
+            Object.getPrototypeOf(piece).moveTo(to);
+            Object.getPrototypeOf(castlingRook).moveTo(castlingRooksMove.to);
         }catch(e){
             if(e == 'NotMoveOutOfPathException'){
                 piece.countBack();
@@ -249,8 +249,6 @@ function extendsPieceToChessPiece(piecesPrototype,board){
 
     const piece = Object.create(piecesPrototype);
     Object.assign(piece,piecesExtends());
-
-    piece.prototype = piecesPrototype;
 
     let castlingRook = null;
     let castlingRooksMove = {};
@@ -280,7 +278,7 @@ function extendsPieceToChessPiece(piecesPrototype,board){
             castlingRook.countBack();
 
             piecesPrototype.moveBack(move);
-            castlingRook.prototype.moveBack(castlingRooksMove);
+            Object.getPrototypeOf(castlingRook).moveBack(castlingRooksMove);
         }else{
             this.countBack();
             piecesPrototype.moveBack(move);
