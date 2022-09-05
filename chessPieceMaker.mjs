@@ -14,7 +14,8 @@ import { getMoveFilter,
          getPawnFirstMoveFilter,
          getProtectRepresentativeFilter,
          getKnightMoveFilter,
-         getKnightAttackFilter
+         getKnightAttackFilter,
+         getCastlingFilter
 } from './pieceMovesFilter.mjs';
 import { 
         makeMovePathTo,
@@ -73,7 +74,7 @@ function kingMaker(board){
 
     const moveFilter = getMoveFilter(getProtectRepresentativeFilter());
     const attackFilter = getAttackFilter(getProtectRepresentativeFilter());
-    const castlingFilter = getProtectRepresentativeFilter();
+    const castlingFilter = getCastlingFilter(getMoveFilter(getProtectRepresentativeFilter()),board);
 
     // const makeKingsMovePath = makeMovePathOn(pFindersGrp);
     const kingMoveMaker = getMoveMaker('move',makeMovePathOn(pFindersGrp),moveFilter);
@@ -190,22 +191,30 @@ function extendsPieceToChessPiece(piecesPrototype,board){
                 if(relativeCount == 0){
                     hasMoved = false;
                 }
+            },
+            getCastlingInfo(to){
+                if(this.getRank() != 'K'){
+                    throw 'OnlyKingMovesCastlingException';
+                }
+                const castlingSide = prepareCastling(piece,to);
+                return {rook:castlingRook,castlingSide:castlingSide};
             }
         }
     }
-    
-    function castling(piece,to){
-
+    function prepareCastling(piece,to){
         let rooksPositionsNotation;
         let rooksCastlingPositionNotation;
+        let castlingSide;
 
         const deferOfPositions = to.getAxisX().charCodeAt(0) - piece.getPosition().getAxisX().charCodeAt(0);
         if(deferOfPositions > 0){
             rooksPositionsNotation = 'h'+piece.getPosition().getAxisY();
             rooksCastlingPositionNotation = 'f'+piece.getPosition().getAxisY();
+            castlingSide = 'kingSide';
         }else{
             rooksPositionsNotation = 'a'+piece.getPosition().getAxisY();
             rooksCastlingPositionNotation = 'd'+piece.getPosition().getAxisY();
+            castlingSide = 'queenSide';
         }
         piece.getCamp().findCampUnits('R').forEach((unit)=>{
             if(unit.getPosition().getLetter() == rooksPositionsNotation){
@@ -214,6 +223,12 @@ function extendsPieceToChessPiece(piecesPrototype,board){
                 castlingRooksMove.to = board.findPositionByNotation(rooksCastlingPositionNotation);
             }
         });
+        return castlingSide;
+    }
+    
+    function castling(piece,to){
+
+        prepareCastling(piece,to);
 
         piece.prototype.moveTo(to);
         piece.move();

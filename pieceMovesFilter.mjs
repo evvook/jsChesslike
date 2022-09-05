@@ -120,6 +120,87 @@ function getKnightAttackFilter(filter){
     }   
 }
 
+function getCastlingFilter(filter,board){
+    function isAttacked(passedPosition,oppositeUnits){
+        let result = false;
+        oppositeUnits.forEach((unit)=>{
+            if(unit.getRank() != 'K'){
+                const paths = unit.getPath();
+                paths.forEach((path)=>{
+                    path.forEach((position)=>{
+                        if(passedPosition.equals(position)){
+                            result = true;
+                        }
+                    });
+                });
+            }
+        });
+        return result;
+    }
+    
+    return function(from,path){
+        const rPath = path.map((to)=>{
+            const opposite = from.getPiece().getCamp().getOpposite()
+            const oppositeUnits = opposite.getCampUnits();
+            //무한 재귀를 방지하기 위함
+            if(opposite.isActive()){
+                return to;
+            }
+
+            const king = from.getPiece();
+            const castlingInfo = king.getCastlingInfo(to);
+            const rook = castlingInfo.rook;
+
+            //조건1. 킹과 룩은 한 번도 움직이지 않아야 함
+            if(king.isMoved() || rook.isMoved()){
+                return null;
+            }
+
+            const kingsPassedPositions = [];
+            const rooksPassdPositions = [];
+            const castlingSide = castlingInfo.castlingSide;
+            if(castlingSide == 'kingSide'){
+                rooksPassdPositions.push(board.findPositionByNotation('f'+king.getPosition().getAxisY()));
+                kingsPassedPositions.push(board.findPositionByNotation('g'+king.getPosition().getAxisY()));
+            }else if(castlingSide == 'queenSide'){
+                rooksPassdPositions.push(board.findPositionByNotation('b'+king.getPosition().getAxisY()));
+                rooksPassdPositions.push(board.findPositionByNotation('c'+king.getPosition().getAxisY()));
+                kingsPassedPositions.push(board.findPositionByNotation('d'+king.getPosition().getAxisY()));
+            }
+            //조건2. 킹과 룩 사이에 어떤 기물도 없어야 함
+            for(let idx in kingsPassedPositions){
+                if(!kingsPassedPositions[idx].isEmpty()){
+                    return null;
+                }
+            }
+            for(let idx in rooksPassdPositions){
+                if(!rooksPassdPositions[idx].isEmpty()){
+                    return null;
+                }
+            }
+            
+            //조건3. 킹이 노려지는 상황에서는 캐스링 할수 없음
+            if(isAttacked(from,oppositeUnits)){
+                return null;
+            }
+
+            //조건4. 킹의 이동경로가 노려지는 상황에서는 캐스링할 수 없음
+            for(let idx in kingsPassedPositions){
+                const passedPosition = kingsPassedPositions[idx];
+                if(isAttacked(passedPosition,oppositeUnits)){
+                    return null;
+                }
+            }
+            return to;
+        });
+        if(filter != null){
+            return filter(from,rPath.filter(to=>to!=null));
+        }else{
+            return rPath.filter(to=>to!=null);
+        }
+    }
+}
+
 function getProtectRepresentativeFilter(filter){
     return function(from,path){
         const rPath = path.map((to) => {
@@ -175,5 +256,6 @@ export{
     getPawnFirstMoveFilter,
     getKnightMoveFilter,
     getKnightAttackFilter,
-    getProtectRepresentativeFilter
+    getProtectRepresentativeFilter,
+    getCastlingFilter
 }
