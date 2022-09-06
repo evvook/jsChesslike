@@ -150,33 +150,32 @@ function getCastlingFilter(filter,board){
             const king = from.getPiece();
             const castlingInfo = king.getCastlingInfo(to);
             const rook = castlingInfo.rook;
-            if(rook == null){
-                return null;
-            }
 
-            //조건1. 킹과 룩은 한 번도 움직이지 않아야 함
-            if(king.isMoved() || rook.isMoved()){
-                return null;
-            }
-
+            //조건1. 캐슬링 사이드에 룩이 존재할 것
             const kingsPassedPositions = [];
             const rooksPassdPositions = [];
             const castlingSide = castlingInfo.castlingSide;
             if(castlingSide == 'kingSide'){
-                if(rook.getPosition().getLetter() != 'h'+king.getPosition().getAxisY()){
+                if(rook == null || rook.getPosition().getLetter() != 'h'+king.getPosition().getAxisY()){
                     return null;
                 }
                 rooksPassdPositions.push(board.findPositionByNotation('f'+king.getPosition().getAxisY()));
                 kingsPassedPositions.push(board.findPositionByNotation('g'+king.getPosition().getAxisY()));
             }else if(castlingSide == 'queenSide'){
-                if(rook.getPosition().getLetter() != 'a'+king.getPosition().getAxisY()){
+                if(rook == null || rook.getPosition().getLetter() != 'a'+king.getPosition().getAxisY()){
                     return null;
                 }
                 rooksPassdPositions.push(board.findPositionByNotation('b'+king.getPosition().getAxisY()));
                 rooksPassdPositions.push(board.findPositionByNotation('c'+king.getPosition().getAxisY()));
                 kingsPassedPositions.push(board.findPositionByNotation('d'+king.getPosition().getAxisY()));
             }
-            //조건2. 킹과 룩 사이에 어떤 기물도 없어야 함
+            
+            //조건2. 킹과 룩은 한 번도 움직이지 않아야 함
+            if(king.isMoved() || rook.isMoved()){
+                return null;
+            }
+
+            //조건3. 킹과 룩 사이에 어떤 기물도 없어야 함
             for(let idx in kingsPassedPositions){
                 if(!kingsPassedPositions[idx].isEmpty()){
                     return null;
@@ -188,12 +187,12 @@ function getCastlingFilter(filter,board){
                 }
             }
             
-            //조건3. 킹이 노려지는 상황에서는 캐스링 할수 없음
+            //조건4. 킹이 노려지는 상황에서는 캐슬링 할수 없음
             if(isAttacked(from,oppositeUnits)){
                 return null;
             }
 
-            //조건4. 킹의 이동경로가 노려지는 상황에서는 캐스링할 수 없음
+            //조건5. 킹의 이동경로가 노려지는 상황에서는 캐슬링할 수 없음
             for(let idx in kingsPassedPositions){
                 const passedPosition = kingsPassedPositions[idx];
                 if(isAttacked(passedPosition,oppositeUnits)){
