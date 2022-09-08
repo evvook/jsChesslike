@@ -1,0 +1,14 @@
+.background{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    min-width:645px;
+}
+
+.board{
+    display:block;
+    width:640px;
+    height:640px;
+    font-size:0;
+    border:0.5px solid black;
+}

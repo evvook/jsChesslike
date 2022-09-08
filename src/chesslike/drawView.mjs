@@ -144,5 +144,6 @@ function setGameInfo(positions,movesPositions){
 }
 
 export{
-    drawGame
+    drawGame,
+    makeBoard
 }

@@ -1,0 +1,11 @@
+.cell{
+    display:inline-block;
+    width:80px;
+    height:80px;
+    border:0.5px solid black;
+    box-sizing:border-box;
+
+    font-size: 42pt;
+    text-align: center;
+    vertical-align: middle;
+}
