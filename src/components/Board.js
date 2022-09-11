@@ -1,22 +1,32 @@
 import Cell from "./Cell";
 import './Board.css';
+import Dialog from "./Dialog";
 
+function Board({cells,gameContext,movePath,manager,message,onSelect,onMove,onMessage,onClear}){
 
-function Board({cells,gameContext,movePath,manager,onSelect,onMove}){
-
+    const colors = {path:'#FFE4B5',enermy:'#F4A460'};
     const cellList = cells.map((cell)=>{
         const cellContext = _filter(gameContext,_compare(cell.id));
         const cellMovePath = _filter(movePath,_compare(cell.id));
-        const cellColor = cellMovePath?(cellContext.onPiece === 'EMPTY'?'#FFE4B5':'#F4A460'):cell.color;
+        const cellColor = cellMovePath?(cellContext.onPiece === 'EMPTY'?colors.path:colors.enermy):cell.color;
         
-        return <Cell key={cell.id} {...cell} {...cellContext} color={cellColor}
-                    movePath={cellMovePath} manager={manager} onSelect={onSelect} onMove={onMove}>
+        return <Cell key={cell.id}
+                     cellId={cell.id} 
+                     color={cellColor} 
+                     movePath={cellMovePath} 
+                     manager={manager} 
+                     onSelect={onSelect} 
+                     onMove={onMove}
+                     onMessage={onMessage}
+                     >
                     {cellContext.onPiece.specialChar}
                 </Cell>
     })
 
+
     return(
         <div className="background">
+            <Dialog onClear={onClear}>{message}</Dialog>
             <div className="board">
                 {cellList}
             </div>
@@ -25,10 +35,10 @@ function Board({cells,gameContext,movePath,manager,onSelect,onMove}){
 }
 
 const _filter = (arr,comapare) => {
-    const filteredArr = []
     if(arr == null){
         return null;
     }else{
+        const filteredArr = []
         filteredArr.push(...arr.filter(el=>comapare(el,'notation')));
         if(filteredArr.length>0){
             return filteredArr[0];

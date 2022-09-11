@@ -10,3 +10,12 @@ export const move = (gameContext) => ({
     gameContext:gameContext
 });
 
+
+export const message = (message) => ({
+    type:types.MESSAGE,
+    message:message
+})
+export const clear = () => ({
+    type:types.CLEAR,
+    messgae:undefined
+})

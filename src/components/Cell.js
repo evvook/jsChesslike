@@ -11,12 +11,12 @@ function Cell(props){
                 props.onSelect(props.manager.getMovePath());
             }
         }catch(err){
-            alert(err);
+            props.onMessage(err);
         }
         
     }
     return(
-        <div className="cell" id={props.id} style={{backgroundColor:props.color}} onClick={click}>{props.children}</div>
+        <div className="cell" id={props.cellId} style={{backgroundColor:props.color}} onClick={click}>{props.children}</div>
     );
 }
 
