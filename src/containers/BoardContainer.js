@@ -12,13 +12,7 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = (dispatch) => ({
-    onSelect: (movePath) => {
-        for(let idx in movePath){
-            movePath[idx].colors = {path:'#FFE4B5',enermy:'#F4A460'};
-        }
-        dispatch(actions.select(movePath))
-    },
-    onUnselect: () => dispatch(actions.unselect()),
+    onSelect: (movePath) => dispatch(actions.select(movePath)),
     onMove: (gameContext) => {
         dispatch(actions.move(gameContext))
     }

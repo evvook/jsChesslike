@@ -2,28 +2,21 @@ import './Cell.css';
 
 function Cell(props){
 
-    const color = props.movePath?(props.onPiece==='EMPTY'?props.movePath.colors.path:props.movePath.colors.enermy):props.color;
-    const style = { 
-        backgroundColor:color
-    }
-
     function click(e){
-        
-        props.manager.selectPosition(e.target.id)
-        const movePath = props.manager.getMovePath();
-        if(movePath.length>0){
-            props.onSelect(movePath);
-        }else{
-            if(props.movePath && props.movePath.notation === e.target.id){
+        try{
+            props.manager.selectPosition(e.target.id)
+            if(props.movePath){
                 props.onMove(props.manager.getGameContext());
             }else{
-                props.onUnselect();
+                props.onSelect(props.manager.getMovePath());
             }
+        }catch(err){
+            alert(err);
         }
-
+        
     }
     return(
-        <div className="cell" id={props.id} style={style} onClick={click}>{props.onPiece.specialChar}</div>
+        <div className="cell" id={props.id} style={{backgroundColor:props.color}} onClick={click}>{props.children}</div>
     );
 }
 

@@ -48,7 +48,7 @@ function standardGameSetter(){
         getCamp:function(name){
             if(name == 'white'){
                 return white;
-            }else if(name = 'black'){
+            }else if(name == 'black'){
                 return black;
             }
         }

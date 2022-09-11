@@ -2,26 +2,46 @@ import Cell from "./Cell";
 import './Board.css';
 
 
-function Board({cells,gameContext,movePath,manager,onSelect,onUnselect,onMove}){
+function Board({cells,gameContext,movePath,manager,onSelect,onMove}){
+
+    const cellList = cells.map((cell)=>{
+        const cellContext = _filter(gameContext,_compare(cell.id));
+        const cellMovePath = _filter(movePath,_compare(cell.id));
+        const cellColor = cellMovePath?(cellContext.onPiece === 'EMPTY'?'#FFE4B5':'#F4A460'):cell.color;
+        
+        return <Cell key={cell.id} {...cell} {...cellContext} color={cellColor}
+                    movePath={cellMovePath} manager={manager} onSelect={onSelect} onMove={onMove}>
+                    {cellContext.onPiece.specialChar}
+                </Cell>
+    })
 
     return(
         <div className="background">
             <div className="board">
-            {
-                cells.map((cell)=>{
-                    const cellContexts = gameContext.filter(cContext=>cContext.notation === cell.id);
-                    const cellContext = cellContexts.length>0?cellContexts[0]:{};
-
-                    const cellMovePaths = movePath!=null?movePath.filter(cPath=>cPath.notation === cell.id):[];
-                    const cellMovePath = cellMovePaths.length>0?cellMovePaths[0]:null;
-                    
-                    return <Cell key={cell.id} {...cell} {...cellContext} 
-                                movePath={cellMovePath} manager={manager} onSelect={onSelect} onUnselect={onUnselect} onMove={onMove}></Cell>
-                })
-            }
+                {cellList}
             </div>
         </div>
     )
+}
+
+const _filter = (arr,comapare) => {
+    const filteredArr = []
+    if(arr == null){
+        return null;
+    }else{
+        filteredArr.push(...arr.filter(el=>comapare(el,'notation')));
+        if(filteredArr.length>0){
+            return filteredArr[0];
+        }else{
+            return null;
+        }
+    }
+}
+
+const _compare = (cond) =>{
+    return (obj, key) => {
+        return obj[key] === cond;
+    }
 }
 
 export default Board;

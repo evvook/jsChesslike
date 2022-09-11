@@ -25,11 +25,6 @@ function setBoard(state = initialState, action){
                 movePath:action.path
                 
             }
-        case types.UNSELECT:
-            return {
-                ...state,
-                movePath:action.path
-            }
         case types.MOVE:
             return {
                 ...state,
