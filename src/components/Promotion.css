@@ -1,0 +1,12 @@
+dialog{
+    border:solid 1px black;
+}
+
+.container{
+    display:flex;
+}
+
+.promotions{
+    width:60px;
+    font-size:40pt;
+}

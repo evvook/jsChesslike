@@ -1,6 +1,6 @@
 import React, {useRef} from "react";
 
-function Dialog(props){
+function Message(props){
 
     const dialog = useRef()
     if(props.children !== undefined && dialog.current && !dialog.current.open){
@@ -17,4 +17,4 @@ function Dialog(props){
     )
 }
 
-export default Dialog;
+export default Message;

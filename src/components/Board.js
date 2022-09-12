@@ -1,12 +1,15 @@
-import Cell from "./Cell";
 import './Board.css';
-import Dialog from "./Dialog";
+import Cell from "./Cell";
+import Message from "./Message";
+import Buttons from "./Buttons";
+import Promotion from "./Promotion";
 
-function Board({cells,gameContext,movePath,manager,message,onSelect,onMove,onMessage,onClear}){
+function Board({cells,boardContext,movePath,manager,message,promotions,onSelect,onMove,onMessage,onClear,onPromotion,onPClear}){
 
     const colors = {path:'#FFE4B5',enermy:'#F4A460'};
+
     const cellList = cells.map((cell)=>{
-        const cellContext = _filter(gameContext,_compare(cell.id));
+        const cellContext = _filter(boardContext,_compare(cell.id));
         const cellMovePath = _filter(movePath,_compare(cell.id));
         const cellColor = cellMovePath?(cellContext.onPiece === 'EMPTY'?colors.path:colors.enermy):cell.color;
         
@@ -18,18 +21,22 @@ function Board({cells,gameContext,movePath,manager,message,onSelect,onMove,onMes
                      onSelect={onSelect} 
                      onMove={onMove}
                      onMessage={onMessage}
+                     onPromotion={onPromotion}
                      >
                     {cellContext.onPiece.specialChar}
                 </Cell>
     })
 
-
     return(
-        <div className="background">
-            <Dialog onClear={onClear}>{message}</Dialog>
-            <div className="board">
-                {cellList}
+        <div>
+            <div className="background">
+                <Message onClear={onClear}>{message}</Message>
+                <Promotion onPClear={onPClear} promotions={promotions} manager={manager} onMove={onMove}></Promotion>
+                <div className="board">
+                    {cellList}
+                </div>
             </div>
+            <Buttons manager={manager} onMove={onMove}></Buttons>
         </div>
     )
 }

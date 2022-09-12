@@ -56,7 +56,7 @@ function getPawnMoveFilter(filter){
         if(filter){
             return filter(from,rPath.filter(to=>to!=null))
         }else{
-            return to;
+            return rPath.filter(to=>to!=null);;
         }
     }
 }
@@ -81,7 +81,7 @@ function getPawnFirstMoveFilter(filter){
         if(filter){
             return filter(from,rPath.filter(to=>to!=null))
         }else{
-            return to;
+            return rPath.filter(to=>to!=null);;
         }
     }
 }
@@ -97,7 +97,7 @@ function getKnightMoveFilter(filter){
         if(filter){
             return filter(from,rPath.filter(to=>to!=null))
         }else{
-            return to;
+            return rPath.filter(to=>to!=null);;
         }
     }
 }
@@ -115,7 +115,7 @@ function getKnightAttackFilter(filter){
         if(filter){
             return filter(from,rPath.filter(to=>to!=null))
         }else{
-            return to;
+            return rPath.filter(to=>to!=null);;
         }
     }   
 }

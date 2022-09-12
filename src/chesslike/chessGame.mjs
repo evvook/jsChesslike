@@ -6,9 +6,9 @@ function standardGameSetter(){
     const axisY = ['1','2','3','4','5','6','7','8'];
     const chessBoard = makeBoard(axisX,axisY);
 
-    const white = makeCamp('white','upside', {K:'♔',R:'♖',N:'♘',P:'♙'});
+    const white = makeCamp('white','upside', {K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙'});
     white.setRepresentativesRank('K');
-    const black = makeCamp('black', 'downside', {K:'♚',R:'♜',N:'♞',P:'♟'});
+    const black = makeCamp('black', 'downside', {K:'♚',Q:'♛',R:'♜',B:'♝',N:'♞',P:'♟'});
     white.setOpposite(black);
     black.setOpposite(white);
 
@@ -68,6 +68,8 @@ function gameManager(){
     let selectedPiece = null;
     let moves = [];
 
+    let promotionContext;
+
     function selectPiece(notation){
         const position = board.findPositionByNotation(notation);
         if(position.isEmpty()){
@@ -87,13 +89,39 @@ function gameManager(){
         oppositeCamp.setActiveStatus(true);
         [activeCamp, oppositeCamp] = [oppositeCamp, activeCamp]
     }
+    function isPromotion(notation){
+        if(selectedPiece.getRank() != 'P'){
+            return false;
+        }
+        if('upside' == selectedPiece.getCamp().getAdvanceSide() && '8' == board.findPositionByNotation(notation).getAxisY()){
+            return true;
+        }else if('downside' == selectedPiece.getCamp().getAdvanceSide() && '1' == board.findPositionByNotation(notation).getAxisY()){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    function setPromotionContext(){
+        promotionContext = [
+            {notation:'Q',specialChar:selectedPiece.getCamp().getUnitsSymbol('Q')},
+            {notation:'R',specialChar:selectedPiece.getCamp().getUnitsSymbol('R')},
+            {notation:'B',specialChar:selectedPiece.getCamp().getUnitsSymbol('B')},
+            {notation:'N',specialChar:selectedPiece.getCamp().getUnitsSymbol('N')},
+        ]
+    }
+    function getPromotionContext(){
+        const rPromotionContext = promotionContext;
+        promotionContext = null;
+        return rPromotionContext;
+    }
 
     return {
         getBoardAxis:function(){
             return {RANK:board.getAxisX(),FILE:board.getAxisY()}
         },
         getGameContext:function(){
-            const gameContext = [];
+            const gameContext = {};
+            const boardContext = [];
             const positions = board.getPositions();
             for(let idx in positions){
                 const position = positions[idx];
@@ -118,8 +146,10 @@ function gameManager(){
                     positionContext.onPiece = pieceContext;
                     positionContext.notation = position.getLetter();
                 }
-                gameContext.push(positionContext);
+                boardContext.push(positionContext);
             }
+            gameContext.boardContext = boardContext;
+            gameContext.promotionContext = getPromotionContext();
             return gameContext;
         },
         getMovePath(){
@@ -159,6 +189,14 @@ function gameManager(){
                 else if(!position.isEmpty() && position.getPiece().getCamp().isInvolved(selectedPiece)){
                     selectPiece(notation);
                 }
+                else if(isPromotion(notation)){
+                    setPromotionContext();
+                    const from = selectedPiece.getPosition();
+                    const to = board.findPositionByNotation(notation);
+                    const moveType = selectedPiece.getMoveType(to);
+                    const removedPiece = selectedPiece.moveTo(to);
+                    moves.push({from:from,to:to,removedPiece:removedPiece,movedPiece:selectedPiece,moveType:moveType});
+                }
                 //그 외 경우면 수 실행(moveTo)
                 else{
                     const from = selectedPiece.getPosition();
@@ -173,9 +211,31 @@ function gameManager(){
         },
         undo:function(){
             const move = moves.pop();
-            const movedPiece = move.movedPiece;
-            movedPiece.moveBack(move);
-
+            if(move.moveType == 'promotion'){
+                move.promotion.beRemovedCamp();
+                move.pawn.beRestoredCamp();
+                board.findPositionByNotation(move.pawn.getPosition().getLetter()).setPiece(move.pawn);
+                this.undo();
+            }else{
+                const movedPiece = move.movedPiece;
+                movedPiece.moveBack(move);
+    
+                switchActiveCamp();
+            }
+        },
+        promotion(notation){
+            let promotionMaker;
+            const positionNotation = selectedPiece.getPosition().getLetter();
+            if('R' == notation){
+                promotionMaker = rookMaker(board);
+            }else if('N' == notation){
+                promotionMaker = knightMaker(board);
+            }
+            promotionMaker.setCamp(selectedPiece.getCamp());
+            promotionMaker.make(board.findPositionByNotation(positionNotation));
+            selectedPiece.beRemovedCamp();
+            moves.push({moveType:'promotion',pawn:selectedPiece,promotion:board.findPositionByNotation(positionNotation).getPiece()});
+            unselectPiece();
             switchActiveCamp();
         }
     }

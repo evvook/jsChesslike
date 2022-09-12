@@ -6,7 +6,13 @@ function Cell(props){
         try{
             props.manager.selectPosition(e.target.id)
             if(props.movePath){
-                props.onMove(props.manager.getGameContext());
+                const gameContext = props.manager.getGameContext();
+                props.onMove(gameContext.boardContext);
+                
+                const promotionContext = gameContext.promotionContext;
+                if(promotionContext){
+                    props.onPromotion(promotionContext);
+                }
             }else{
                 props.onSelect(props.manager.getMovePath());
             }

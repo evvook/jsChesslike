@@ -12,7 +12,7 @@ function initState(){
 
     state.manager = manager;
     state.cells = flatBoardData;
-    state.gameContext = manager.getGameContext();
+    state.boardContext = manager.getGameContext().boardContext;
 
     return state;
 }
@@ -29,7 +29,7 @@ function board(state = initialState, action){
             return {
                 ...state,
                 movePath:action.path,
-                gameContext:action.gameContext
+                boardContext:action.boardContext
             }         
         default:
             return state;
