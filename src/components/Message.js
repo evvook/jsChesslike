@@ -1,6 +1,11 @@
 import React, {useRef} from "react";
+import { useDispatch } from "react-redux";
+
+import * as messageActions from '../modules/message'
 
 function Message(props){
+
+    const dispatch = useDispatch()
 
     const dialog = useRef()
     if(props.children !== undefined && dialog.current && !dialog.current.open){
@@ -8,7 +13,7 @@ function Message(props){
     }
 
     const click = () => {
-        props.onClearMessage();
+        dispatch(messageActions.clear());
         dialog.current.close();
     };
     

@@ -1,18 +1,26 @@
 import React,{useRef} from "react";
+import { useDispatch, useSelector } from "react-redux";
 import "./Promotion.css"
 
-function Promotion(props){
+import * as boardActions from '../modules/board'
+import * as promotionActions from '../modules/promotion'
+
+function Promotion(){
+
+    const promotions = useSelector(state=>state.promotionData.promotions);
+    const manager = useSelector(state=>state.boardData.manager);
+    const dispatch = useDispatch();
 
     const dialog = useRef()
-    if(props.promotions !== undefined && dialog.current && !dialog.current.open){
+    if(promotions !== undefined && dialog.current && !dialog.current.open){
         dialog.current.showModal();
     }
     
     const click = (event) => {
-        props.manager.promotion(event.target.id);
-        const gameContext = props.manager.getGameContext();
-        props.onMove(gameContext.boardContext);
-        props.onClearPromotions();
+        manager.promotion(event.target.id);
+        const gameContext = manager.getGameContext();
+        dispatch(boardActions.move(gameContext.boardContext));
+        dispatch(promotionActions.clear())
         dialog.current.close();
     }
 
@@ -20,7 +28,7 @@ function Promotion(props){
         <dialog ref={dialog}>
             <div className="container">
                 {
-                    props.promotions?props.promotions.map(
+                    promotions?promotions.map(
                         promotion => <div className="promotions" key={promotion.notation} id={promotion.notation} onClick={click}>
                                         {promotion.specialChar}
                                      </div>

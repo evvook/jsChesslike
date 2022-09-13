@@ -1,10 +1,15 @@
+import { useDispatch, useSelector } from 'react-redux';
 import './Buttons.css'
+import * as boardActions from '../modules/board'
 
-function Buttons(props){
+function Buttons(){
+
+    const manager = useSelector(state=>state.boardData.manager);
+    const dispatch = useDispatch();
 
     const click = () => {
-        props.manager.undo();
-        props.onMove(props.manager.getGameContext().boardContext)
+        manager.undo();
+        dispatch(boardActions.move((manager.getGameContext().boardContext)));
     }
 
     return (

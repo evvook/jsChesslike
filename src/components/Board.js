@@ -1,8 +1,9 @@
 import './Board.css';
 import Cell from './Cell';
+import {useSelector} from 'react-redux';
 
-function Board(props){
-    const {cells, boardContext, movePath, manager, onSelect, onMove, onSetMessage, onShowPromotions} = props;
+function Board(){
+    const {cells,boardContext,movePath} = useSelector(state=>state.boardData);
 
     const colors = {path:'#FFE4B5',enermy:'#F4A460'};
     const cellList = cells.map((cell)=>{
@@ -14,11 +15,6 @@ function Board(props){
                      cellId={cell.id} 
                      color={cellColor} 
                      movePath={cellMovePath} 
-                     manager={manager} 
-                     onSelect={onSelect} 
-                     onMove={onMove}
-                     onSetMessage={onSetMessage}
-                     onShowPromotions={onShowPromotions}
                      >
                     {cellContext.onPiece.specialChar}
                 </Cell>
