@@ -1,13 +1,10 @@
 import './Board.css';
-import Cell from "./Cell";
-import Message from "./Message";
-import Buttons from "./Buttons";
-import Promotion from "./Promotion";
+import Cell from './Cell';
 
-function Board({cells,boardContext,movePath,manager,message,promotions,onSelect,onMove,onSetMessage,onClearMessage,onShowPromotions,onClearPromotions}){
+function Board(props){
+    const {cells, boardContext, movePath, manager, onSelect, onMove, onSetMessage, onShowPromotions} = props;
 
     const colors = {path:'#FFE4B5',enermy:'#F4A460'};
-
     const cellList = cells.map((cell)=>{
         const cellContext = _filter(boardContext,_compare(cell.id));
         const cellMovePath = _filter(movePath,_compare(cell.id));
@@ -28,15 +25,8 @@ function Board({cells,boardContext,movePath,manager,message,promotions,onSelect,
     })
 
     return(
-        <div>
-            <div className="background">
-                <Message onClearMessage={onClearMessage}>{message}</Message>
-                <Promotion onClearPromotions={onClearPromotions} promotions={promotions} manager={manager} onMove={onMove}></Promotion>
-                <div className="board">
-                    {cellList}
-                </div>
-            </div>
-            <Buttons manager={manager} onMove={onMove}></Buttons>
+        <div className="board">
+            {cellList}
         </div>
     )
 }
