@@ -12,16 +12,20 @@ function Promotion(props){
         props.manager.promotion(event.target.id);
         const gameContext = props.manager.getGameContext();
         props.onMove(gameContext.boardContext);
-        props.onPClear();
+        props.onClearPromotions();
         dialog.current.close();
     }
 
     return (
         <dialog ref={dialog}>
             <div className="container">
-                {props.promotions?props.promotions.map(promotion=>
-                        <div className="promotions" key={promotion.notation} id={promotion.notation} onClick={click}>{promotion.specialChar}</div>
-                    ):undefined}
+                {
+                    props.promotions?props.promotions.map(
+                        promotion => <div className="promotions" key={promotion.notation} id={promotion.notation} onClick={click}>
+                                        {promotion.specialChar}
+                                     </div>
+                    ):undefined
+                }
             </div>
         </dialog>
     )

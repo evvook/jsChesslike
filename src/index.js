@@ -5,11 +5,11 @@ import reportWebVitals from './reportWebVitals';
 
 import App from './containers/App';
 import { createStore } from 'redux';
-import reducers from './reducers';
+import modules from './modules';
 import { Provider } from 'react-redux';
 
 
-const store = createStore(reducers);
+const store = createStore(modules);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

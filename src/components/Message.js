@@ -8,7 +8,7 @@ function Message(props){
     }
 
     const click = () => {
-        props.onClear();
+        props.onClearMessage();
         dialog.current.close();
     };
     

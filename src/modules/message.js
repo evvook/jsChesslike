@@ -1,4 +1,14 @@
-import * as types from '../actions/ActionTypes';
+const SET = 'message/SET';
+const CLEAR = 'message/CLEAR';
+
+export const set = (message) => ({
+    type:SET,
+    message:message
+})
+export const clear = () => ({
+    type:CLEAR,
+    messgae:undefined
+})
 
 const initialState = {
     message:undefined
@@ -6,12 +16,12 @@ const initialState = {
 
 const message = (state = initialState, action) => {
     switch(action.type){
-        case types.MESSAGE:
+        case SET:
             return {
                 ...state,
                 message:action.message
             }
-        case types.CLEAR:
+        case CLEAR:
             return {
                 ...state,
                 message:action.message

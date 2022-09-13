@@ -1,6 +1,8 @@
 import Board from '../components/Board';
-import * as actions from '../actions';
 import { connect } from 'react-redux';
+import * as boardActions from '../modules/board'
+import * as messageActions from '../modules/message'
+import * as promotionActions from '../modules/promotion'
 
 const mapStateToProps = (state) => {
     return {
@@ -18,16 +20,16 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
     //board액션
-    onSelect: (movePath) => dispatch(actions.select(movePath)),
+    onSelect: (movePath) => dispatch(boardActions.select(movePath)),
     onMove: (boardContext) => {
-        dispatch(actions.move(boardContext))
+        dispatch(boardActions.move(boardContext))
     },
     //message액션
-    onMessage: (message) => dispatch(actions.message(message)),
-    onClear: () => dispatch(actions.clear()),
+    onSetMessage: (message) => dispatch(messageActions.set(message)),
+    onClearMessage: () => dispatch(messageActions.clear()),
 
-    onPromotion: (promotions) => dispatch(actions.promotion(promotions)),
-    onPClear : () => dispatch(actions.pClear()),
+    onShowPromotions: (promotions) => dispatch(promotionActions.show(promotions)),
+    onClearPromotions : () => dispatch(promotionActions.clear()),
 })
 
 const BoardContainer = connect(

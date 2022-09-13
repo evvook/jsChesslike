@@ -4,7 +4,7 @@ import Message from "./Message";
 import Buttons from "./Buttons";
 import Promotion from "./Promotion";
 
-function Board({cells,boardContext,movePath,manager,message,promotions,onSelect,onMove,onMessage,onClear,onPromotion,onPClear}){
+function Board({cells,boardContext,movePath,manager,message,promotions,onSelect,onMove,onSetMessage,onClearMessage,onShowPromotions,onClearPromotions}){
 
     const colors = {path:'#FFE4B5',enermy:'#F4A460'};
 
@@ -20,8 +20,8 @@ function Board({cells,boardContext,movePath,manager,message,promotions,onSelect,
                      manager={manager} 
                      onSelect={onSelect} 
                      onMove={onMove}
-                     onMessage={onMessage}
-                     onPromotion={onPromotion}
+                     onSetMessage={onSetMessage}
+                     onShowPromotions={onShowPromotions}
                      >
                     {cellContext.onPiece.specialChar}
                 </Cell>
@@ -30,8 +30,8 @@ function Board({cells,boardContext,movePath,manager,message,promotions,onSelect,
     return(
         <div>
             <div className="background">
-                <Message onClear={onClear}>{message}</Message>
-                <Promotion onPClear={onPClear} promotions={promotions} manager={manager} onMove={onMove}></Promotion>
+                <Message onClearMessage={onClearMessage}>{message}</Message>
+                <Promotion onClearPromotions={onClearPromotions} promotions={promotions} manager={manager} onMove={onMove}></Promotion>
                 <div className="board">
                     {cellList}
                 </div>

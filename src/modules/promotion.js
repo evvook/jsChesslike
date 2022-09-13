@@ -1,4 +1,14 @@
-import * as types from '../actions/ActionTypes';
+const SHOW = 'promotion/SHOW'
+const CLEAR = 'promotion/CLEAR'
+
+export const show = (promotions) => ({
+    type:SHOW,
+    promotions:promotions
+})
+export const clear = () => ({
+    type:CLEAR,
+    promotions:undefined
+})
 
 const initialState = {
     promotions:undefined
@@ -6,12 +16,12 @@ const initialState = {
 
 const promotion = (state = initialState, action) => {
     switch(action.type){
-        case types.PROMOTION:
+        case SHOW:
             return {
                 ...state,
                 promotions:action.promotions
             }
-        case types.P_CLEAR:
+        case CLEAR:
             return {
                 ...state,
                 promotions:action.promotions

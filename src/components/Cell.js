@@ -11,13 +11,13 @@ function Cell(props){
                 
                 const promotionContext = gameContext.promotionContext;
                 if(promotionContext){
-                    props.onPromotion(promotionContext);
+                    props.onShowPromotions(promotionContext);
                 }
             }else{
                 props.onSelect(props.manager.getMovePath());
             }
         }catch(err){
-            props.onMessage(err);
+            props.onSetMessage(err);
         }
         
     }
