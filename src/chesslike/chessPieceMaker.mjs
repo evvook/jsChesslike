@@ -57,6 +57,72 @@ function rookMaker(board){
     };
 }
 
+function bishopMaker(board){
+    const pFinderToNorthWest = makePositionFinderNorthWest(board);
+    const pFinderToNorthEast = makePositionFinderNorthEast(board);
+    const pFinderToSouthEast = makePositionFinderSouthEast(board);
+    const pFinderToSouthWest = makePositionFinderSouthWest(board);
+    const pFinders = [pFinderToNorthWest,pFinderToNorthEast,pFinderToSouthEast,pFinderToSouthWest]
+    
+    const moveFilter = getMoveFilter(getProtectRepresentativeFilter())
+    const attackFilter = getAttackFilter(getProtectRepresentativeFilter());
+    
+    const bishopMoveMaker = getMoveMaker('move',makeMovePathTo(pFinders),moveFilter);
+    const bishopAttackMaker = getMoveMaker('attack',makeMovePathTo(pFinders),attackFilter);
+    
+    let camp = null;
+    return {
+        setCamp(pCamp){
+            camp = pCamp;
+        },
+        make:function(position){
+            const bishopsPrototype = makePiece('B',[bishopMoveMaker,bishopAttackMaker]);
+            const bishop = extendsPieceToChessPiece(bishopsPrototype);
+            
+            bishop.initPosition(position);
+            if(camp != null){
+                camp.join(bishop);
+            }
+            return bishop;
+        }
+    };
+}
+
+function queenMaker(board){
+    const pFinderToNorth = makePositionFinderNorth(board);
+    const pFinderToEast = makePositionFinderEast(board);
+    const pFinderToSouth = makePositionFinderSouth(board);
+    const pFinderToWest = makePositionFinderWest(board);
+    const pFinderToNorthWest = makePositionFinderNorthWest(board);
+    const pFinderToNorthEast = makePositionFinderNorthEast(board);
+    const pFinderToSouthEast = makePositionFinderSouthEast(board);
+    const pFinderToSouthWest = makePositionFinderSouthWest(board);
+    const pFinders = [pFinderToNorth,pFinderToEast,pFinderToSouth,pFinderToWest,pFinderToNorthWest,pFinderToNorthEast,pFinderToSouthEast,pFinderToSouthWest]
+    
+    const moveFilter = getMoveFilter(getProtectRepresentativeFilter())
+    const attackFilter = getAttackFilter(getProtectRepresentativeFilter());
+
+    const queenMoveMaker = getMoveMaker('move',makeMovePathTo(pFinders),moveFilter);
+    const queenAttackMaker = getMoveMaker('attack',makeMovePathTo(pFinders),attackFilter);
+
+    let camp = null;
+    return {
+        setCamp(pCamp){
+            camp = pCamp;
+        },
+        make:function(position){
+            const queensPrototype = makePiece('Q',[queenMoveMaker,queenAttackMaker]);
+            const queen = extendsPieceToChessPiece(queensPrototype);
+
+            queen.initPosition(position);
+            if(camp != null){
+                camp.join(queen);
+            }
+            return queen;
+        }
+    };   
+}
+
 function kingMaker(board){
     const pFinders1 = [makePositionFinderNorth(board)];
     const pFinders2 = [makePositionFinderNorthEast(board)];
@@ -290,7 +356,9 @@ function extendsPieceToChessPiece(piecesPrototype,board){
 
 export{
     kingMaker,
+    queenMaker,
     rookMaker,
+    bishopMaker,
     knightMaker,
     pawnMaker
 }

@@ -21,7 +21,8 @@ const initialState = initState();
 
 function initState(){
     const state = {}
-    const manager = game.gameManager();
+    const manager = game.gameManager(game.standardGameSetter);
+    // const manager = game.gameManager(game.stalemateGameSetter);
     const boardData = view.makeBoard(manager.getBoardAxis().RANK,manager.getBoardAxis().FILE);
     const flatBoardData = boardData.flatMap((rank)=>rank);
 

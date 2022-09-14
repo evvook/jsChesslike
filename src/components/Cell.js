@@ -3,6 +3,7 @@ import './Cell.css';
 import * as boardActions from '../modules/board';
 import * as messageActions from '../modules/message';
 import * as promotionActions from '../modules/promotion';
+import * as resultActions from '../modules/result';
 
 function Cell(props){
 
@@ -19,6 +20,11 @@ function Cell(props){
                 const promotionContext = gameContext.promotionContext;
                 if(promotionContext){
                     dispatch(promotionActions.show(promotionContext));
+                }
+
+                const matchContext = gameContext.matchContext;
+                if(matchContext.status !== 'ongoing'){
+                    dispatch(resultActions.set(matchContext))
                 }
             }else{
                 dispatch(boardActions.select(manager.getMovePath()));

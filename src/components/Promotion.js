@@ -4,6 +4,7 @@ import "./Promotion.css"
 
 import * as boardActions from '../modules/board'
 import * as promotionActions from '../modules/promotion'
+import * as resultActions from '../modules/result'
 
 function Promotion(){
 
@@ -19,9 +20,17 @@ function Promotion(){
     const click = (event) => {
         manager.promotion(event.target.id);
         const gameContext = manager.getGameContext();
-        dispatch(boardActions.move(gameContext.boardContext));
+
+        const matchContext = gameContext.matchContext;
         dispatch(promotionActions.clear())
         dialog.current.close();
+
+        if(matchContext.status === 'ongoing'){
+            dispatch(boardActions.move(gameContext.boardContext));
+        }else{
+            dispatch(resultActions.set(matchContext))
+        }
+
     }
 
     return (

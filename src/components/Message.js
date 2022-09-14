@@ -1,6 +1,7 @@
 import React, {useRef} from "react";
 import { useDispatch } from "react-redux";
 
+import './Message.css';
 import * as messageActions from '../modules/message'
 
 function Message(props){

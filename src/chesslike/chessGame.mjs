@@ -1,5 +1,5 @@
 import { makeBoard ,makeCamp } from "./parts.mjs";
-import { kingMaker,rookMaker,knightMaker,pawnMaker } from "./chessPieceMaker.mjs";
+import { kingMaker,rookMaker,knightMaker,pawnMaker, queenMaker, bishopMaker } from "./chessPieceMaker.mjs";
 
 function standardGameSetter(){
     const axisX = ['a','b','c','d','e','f','g','h'];
@@ -19,6 +19,12 @@ function standardGameSetter(){
     kMaker.make(chessBoard.findPositionByNotation('e8'));
     black.setRepresentativesRank('K');
 
+    const qMaker = queenMaker(chessBoard);
+    qMaker.setCamp(white);
+    qMaker.make(chessBoard.findPositionByNotation('d1'));
+    qMaker.setCamp(black);
+    qMaker.make(chessBoard.findPositionByNotation('d8'));    
+
     const rMaker = rookMaker(chessBoard);
     rMaker.setCamp(white);
     rMaker.make(chessBoard.findPositionByNotation('a1'));
@@ -26,6 +32,15 @@ function standardGameSetter(){
     rMaker.setCamp(black);
     rMaker.make(chessBoard.findPositionByNotation('a8'));
     rMaker.make(chessBoard.findPositionByNotation('h8'));
+
+
+    const bMaker = bishopMaker(chessBoard);
+    bMaker.setCamp(white);
+    bMaker.make(chessBoard.findPositionByNotation('c1'));
+    bMaker.make(chessBoard.findPositionByNotation('f1'));
+    bMaker.setCamp(black);
+    bMaker.make(chessBoard.findPositionByNotation('c8'));
+    bMaker.make(chessBoard.findPositionByNotation('f8'));
 
     const nMaker = knightMaker(chessBoard);
     nMaker.setCamp(white);
@@ -38,7 +53,21 @@ function standardGameSetter(){
     const pMaker = pawnMaker(chessBoard);
     pMaker.setCamp(white);
     pMaker.make(chessBoard.findPositionByNotation('a2'));
+    pMaker.make(chessBoard.findPositionByNotation('b2'));
+    pMaker.make(chessBoard.findPositionByNotation('c2'));
+    pMaker.make(chessBoard.findPositionByNotation('d2'));
+    pMaker.make(chessBoard.findPositionByNotation('e2'));
+    pMaker.make(chessBoard.findPositionByNotation('f2'));
+    pMaker.make(chessBoard.findPositionByNotation('g2'));
+    pMaker.make(chessBoard.findPositionByNotation('h2'));
     pMaker.setCamp(black);
+    pMaker.make(chessBoard.findPositionByNotation('a7'));
+    pMaker.make(chessBoard.findPositionByNotation('b7'));
+    pMaker.make(chessBoard.findPositionByNotation('c7'));
+    pMaker.make(chessBoard.findPositionByNotation('d7'));
+    pMaker.make(chessBoard.findPositionByNotation('e7'));
+    pMaker.make(chessBoard.findPositionByNotation('f7'));
+    pMaker.make(chessBoard.findPositionByNotation('g7'));
     pMaker.make(chessBoard.findPositionByNotation('h7'));
 
     return {
@@ -55,12 +84,63 @@ function standardGameSetter(){
     }
 }
 
-function gameManager(){
-    const gameSetter = standardGameSetter();
+function stalemateGameSetter(){
+    const axisX = ['a','b','c','d','e','f','g','h'];
+    const axisY = ['1','2','3','4','5','6','7','8'];
+    const chessBoard = makeBoard(axisX,axisY);
+
+    const white = makeCamp('white','upside', {K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙'});
+    white.setRepresentativesRank('K');
+    const black = makeCamp('black', 'downside', {K:'♚',Q:'♛',R:'♜',B:'♝',N:'♞',P:'♟'});
+    white.setOpposite(black);
+    black.setOpposite(white);
+
+    const kMaker = kingMaker(chessBoard);
+    kMaker.setCamp(white);
+    kMaker.make(chessBoard.findPositionByNotation('e1'));
+    kMaker.setCamp(black);
+    kMaker.make(chessBoard.findPositionByNotation('f7'));
+    black.setRepresentativesRank('K');
+
+    const qMaker = queenMaker(chessBoard);
+    qMaker.setCamp(white);
+    qMaker.make(chessBoard.findPositionByNotation('b8'));
+
+    const rMaker = rookMaker(chessBoard);
+    rMaker.setCamp(white);
+    rMaker.make(chessBoard.findPositionByNotation('e6'));
+    rMaker.make(chessBoard.findPositionByNotation('g6'));
+
+    const bMaker = bishopMaker(chessBoard);
+    bMaker.setCamp(white);
+    bMaker.make(chessBoard.findPositionByNotation('f5'));
+
+    const pMaker = pawnMaker(chessBoard);
+    pMaker.setCamp(white);
+    pMaker.make(chessBoard.findPositionByNotation('b3'));
+    pMaker.setCamp(black);
+    pMaker.make(chessBoard.findPositionByNotation('b5'));
+
+    return {
+        getBoard:function(){
+            return chessBoard;
+        },
+        getCamp:function(name){
+            if(name == 'white'){
+                return white;
+            }else if(name == 'black'){
+                return black;
+            }
+        }
+    }
+}
+
+function gameManager(pGameSetter){
     
-    const board = gameSetter.getBoard();
-    const white = gameSetter.getCamp('white');
-    const black = gameSetter.getCamp('black');
+    let gameSetter = pGameSetter();
+    let board = gameSetter.getBoard();
+    let white = gameSetter.getCamp('white');
+    let black = gameSetter.getCamp('black');
 
     let activeCamp = white;
     let oppositeCamp = black;
@@ -114,6 +194,27 @@ function gameManager(){
         promotionContext = null;
         return rPromotionContext;
     }
+    function getMatchState(){
+        const units = [];
+        activeCamp.getCampUnits().forEach((unit)=>{
+            if(unit.getPath().flatMap(path=>path).length>0){
+                units.push(unit)
+            }
+        })
+        if(units.length>0){
+            return {status:'ongoing'}
+        }else{
+            const checkmate = oppositeCamp.getCampUnits().find((unit)=>{
+                const paths = unit.getPath().flatMap(path=>path);
+                return paths.find(position=>position.getPiece()==activeCamp.getRepresentative())
+            })
+            if(checkmate){
+                return {status:'checkmate', win:checkmate.getCamp().getName()}
+            }else{
+                return {status:'stalemate'}
+            }
+        }
+    }
 
     return {
         getBoardAxis:function(){
@@ -150,6 +251,7 @@ function gameManager(){
             }
             gameContext.boardContext = boardContext;
             gameContext.promotionContext = getPromotionContext();
+            gameContext.matchContext = getMatchState();
             return gameContext;
         },
         getMovePath(){
@@ -226,8 +328,12 @@ function gameManager(){
         promotion(notation){
             let promotionMaker;
             const positionNotation = selectedPiece.getPosition().getLetter();
-            if('R' == notation){
+            if('Q' == notation){
+                promotionMaker = queenMaker(board);
+            }else if('R' == notation){
                 promotionMaker = rookMaker(board);
+            }else if('B' == notation){
+                promotionMaker = bishopMaker(board);
             }else if('N' == notation){
                 promotionMaker = knightMaker(board);
             }
@@ -237,10 +343,26 @@ function gameManager(){
             moves.push({moveType:'promotion',pawn:selectedPiece,promotion:board.findPositionByNotation(positionNotation).getPiece()});
             unselectPiece();
             switchActiveCamp();
+        },
+        reset(){
+            gameSetter = pGameSetter();
+            board = gameSetter.getBoard();
+            white = gameSetter.getCamp('white');
+            black = gameSetter.getCamp('black');
+        
+            activeCamp = white;
+            oppositeCamp = black;
+        
+            selectedPiece = null;
+            moves = [];
+        
+            promotionContext = null;
         }
     }
 }
 
 export{
-    gameManager
+    gameManager,
+    standardGameSetter,
+    stalemateGameSetter
 }
