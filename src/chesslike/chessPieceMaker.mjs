@@ -15,7 +15,8 @@ import { getMoveFilter,
          getProtectRepresentativeFilter,
          getKnightMoveFilter,
          getKnightAttackFilter,
-         getCastlingFilter
+         getCastlingFilter,
+         getEnpassantFilter
 } from './pieceMovesFilter.mjs';
 import { 
         makeMovePathTo,
@@ -180,9 +181,11 @@ function pawnMaker(board){
 
     const moveFilter = getMoveFilter(getPawnMoveFilter(getPawnFirstMoveFilter(getProtectRepresentativeFilter())));
     const attackFilter = getAttackFilter(getPawnMoveFilter(getProtectRepresentativeFilter()));
+    const enppasantFilter = getEnpassantFilter(getPawnMoveFilter(getProtectRepresentativeFilter()),board);
 
     const pawnMoveMaker = getMoveMaker('move',makeMovePathOn(mpFindersGrp),moveFilter);
     const pawnAttackMaker = getMoveMaker('attack',makeMovePathOn(apFindersGrp),attackFilter);
+    const pawnEnpassantkMaker = getMoveMaker('enpassant',makeMovePathOn(apFindersGrp),enppasantFilter);
 
     let camp = null;
 
@@ -191,7 +194,7 @@ function pawnMaker(board){
             camp = pCamp;
         },
         make:function(position){
-            const pawnsPrototype = makePiece('P',[pawnMoveMaker,pawnAttackMaker]);
+            const pawnsPrototype = makePiece('P',[pawnMoveMaker,pawnAttackMaker,pawnEnpassantkMaker]);
             const pawn = extendsPieceToChessPiece(pawnsPrototype);
 
             pawn.initPosition(position);
@@ -242,6 +245,7 @@ function extendsPieceToChessPiece(piecesPrototype,board){
     function piecesExtends(){
         let hasMoved = false;
         let relativeCount = 0;
+        let defendentCount = 0;
         return {
             isMoved:function(){
                 return hasMoved;
@@ -249,8 +253,19 @@ function extendsPieceToChessPiece(piecesPrototype,board){
             move:function(){
                 hasMoved = true;
             },
+            countDc:function(){
+                defendentCount+=1;
+                // console.log(defendentCount)
+            },
+            countBackDc:function(){
+                defendentCount-=1;
+                // console.log(defendentCount)
+            },
+            getDefendentCount(){
+                return defendentCount;
+            },
             countTurn:function(){
-                relativeCount++;
+                relativeCount+=1;
             },
             countBack:function(){
                 relativeCount -= 1;

@@ -1,5 +1,6 @@
-dialog{
+.promotionModal{
     border:solid 1px black;
+    cursor: pointer;
 }
 
 .container{

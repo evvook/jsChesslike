@@ -209,6 +209,62 @@ function getCastlingFilter(filter,board){
     }
 }
 
+function getEnpassantFilter(filter,board){
+    return function(from,path){
+        const rPath = path.map((to) => {
+            if(to.isEmpty()){
+                let position;
+                try{
+                    if(from.getPiece().getCamp().getAdvanceSide() == 'upside'){
+                        position = board.getPosition(to.getAxisX(),String.fromCharCode(to.getAxisY().charCodeAt(0)-1));
+                    }else{
+                        position = board.getPosition(to.getAxisX(),String.fromCharCode(to.getAxisY().charCodeAt(0)+1));
+                    }
+                }catch(err){
+                    if(err == 'NotIncludesBoardException'){
+                        return null;
+                    }else{
+                        throw err;
+                    }
+                }
+
+                if(position.isEmpty()){
+                    return null;
+                }else if(from.getPiece().getCamp().isInvolved(position.getPiece())){
+                    return null;
+                }else if(position.getPiece().getRank() != 'P'){
+                    return null;
+                }else{
+                    const oppositePawn = position.getPiece();
+                    if(!oppositePawn.isMoved() || oppositePawn.getDefendentCount() != 0){
+                        return null;
+                    }else{
+                        let deff;
+                        if(oppositePawn.getCamp().getAdvanceSide() == 'upside'){
+                            deff = Math.abs(oppositePawn.getPosition().getAxisY() - 2);
+                        }else{
+                            deff = Math.abs(oppositePawn.getPosition().getAxisY() - 7);
+                        }
+                        if(deff != 2){
+                            return null;
+                        }else{
+                            return to;
+                        }
+                    }
+                }
+            }else{
+                return null;
+            }
+        });
+
+        if(filter != null){
+            return filter(from,rPath.filter(to=>to!=null));
+        }else{
+            return rPath.filter(to=>to!=null);
+        }
+    }
+}
+
 function getProtectRepresentativeFilter(filter){
     return function(from,path){
         const rPath = path.map((to) => {
@@ -223,7 +279,7 @@ function getProtectRepresentativeFilter(filter){
             const oppositeUnits = opposite.getCampUnits();
     
             const removedPiece = piece.moveTo(to);
-            console.log(piece.getCamp().getName()+"-"+piece.getRank() +':'+ piece.getPosition().getLetter());
+            // console.log(piece.getCamp().getName()+"-"+piece.getRank() +':'+ piece.getPosition().getLetter());
     
             let check = false; 
             oppositeUnits.forEach((unit)=>{
@@ -241,7 +297,7 @@ function getProtectRepresentativeFilter(filter){
             });
     
             piece.moveBack({from:from,to:to,removedPiece:removedPiece,movedPiece:piece});
-            console.log(piece.getCamp().getName()+"-"+piece.getRank() +':'+ piece.getPosition().getLetter());
+            // console.log(piece.getCamp().getName()+"-"+piece.getRank() +':'+ piece.getPosition().getLetter());
     
             if(check){
                 return null;
@@ -265,5 +321,6 @@ export{
     getKnightMoveFilter,
     getKnightAttackFilter,
     getProtectRepresentativeFilter,
-    getCastlingFilter
+    getCastlingFilter,
+    getEnpassantFilter
 }

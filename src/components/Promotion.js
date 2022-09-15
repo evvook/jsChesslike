@@ -34,7 +34,7 @@ function Promotion(){
     }
 
     return (
-        <dialog ref={dialog}>
+        <dialog className="promotionModal" ref={dialog}>
             <div className="container">
                 {
                     promotions?promotions.map(

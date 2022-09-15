@@ -24,7 +24,7 @@ const Result = () => {
     };
 
     return (
-        <dialog ref={dialog}>
+        <dialog className="resultModal" ref={dialog}>
             <div>{
                 result?(result.status === 'checkmate'?result.win+'이(가) 이겼습니다':'비겼습니다'):undefined
             }</div>

@@ -19,7 +19,7 @@ function Message(props){
     };
     
     return (
-        <dialog ref={dialog} onClick={click}>{props.children}</dialog>
+        <dialog className="messageModal" ref={dialog} onClick={click}>{props.children}</dialog>
     )
 }
 

@@ -180,7 +180,7 @@ function gameManager(pGameSetter){
         }
     }
     function getPromotionContext(){
-        if(selectedPiece){
+        if(selectedPiece && isPromotion(selectedPiece.getPosition().getLetter())){
             return [
                 {notation:'Q',specialChar:selectedPiece.getCamp().getUnitsSymbol('Q')},
                 {notation:'R',specialChar:selectedPiece.getCamp().getUnitsSymbol('R')},
@@ -209,7 +209,10 @@ function gameManager(pGameSetter){
             }
         }
     }
-
+    function isEnpassant(notation){
+        const to = board.findPositionByNotation(notation);
+        return selectedPiece.getMoveType(to) == 'enpassant';
+    }
     return {
         getBoardAxis:function(){
             return {RANK:board.getAxisX(),FILE:board.getAxisY()}
@@ -285,22 +288,48 @@ function gameManager(pGameSetter){
                 else if(!position.isEmpty() && position.getPiece().getCamp().isInvolved(selectedPiece)){
                     selectPiece(notation);
                 }
-                else if(isPromotion(notation)){
-                    const from = selectedPiece.getPosition();
-                    const to = board.findPositionByNotation(notation);
-                    const moveType = selectedPiece.getMoveType(to);
-                    const removedPiece = selectedPiece.moveTo(to);
-                    moves.push({from:from,to:to,removedPiece:removedPiece,movedPiece:selectedPiece,moveType:moveType});
-                }
-                //그 외 경우면 수 실행(moveTo)
+                //수를 둠
                 else{
-                    const from = selectedPiece.getPosition();
-                    const to = board.findPositionByNotation(notation);
-                    const moveType = selectedPiece.getMoveType(to);
-                    const removedPiece = selectedPiece.moveTo(to);
-                    moves.push({from:from,to:to,removedPiece:removedPiece,movedPiece:selectedPiece,moveType:moveType});
-                    unselectPiece();
-                    switchActiveCamp();
+                    //의존 카운트를 진행
+                    if(moves.length>0){
+                        let lastMove = moves[moves.length-1];
+                        if(lastMove.moveType == 'promotion'){
+                            lastMove = moves[moves.length-2];
+                        }
+                        const lastMovedPiece = lastMove.movedPiece;
+                        lastMovedPiece.countDc();
+                    }
+                    //프로모션이면
+                    if(isPromotion(notation)){
+                        const from = selectedPiece.getPosition();
+                        const to = board.findPositionByNotation(notation);
+                        const moveType = selectedPiece.getMoveType(to);
+                        const removedPiece = selectedPiece.moveTo(to);
+                        moves.push({from:from,to:to,removedPiece:removedPiece,movedPiece:selectedPiece,moveType:moveType});
+                    }
+                    //앙파상이면
+                    else if(isEnpassant(notation)){
+                        const from = selectedPiece.getPosition();
+                        const to = board.findPositionByNotation(notation);
+                        const moveType = selectedPiece.getMoveType(to);
+                        selectedPiece.moveTo(to);
+                        const enpassantPiece = moves[moves.length-1].movedPiece;
+                        enpassantPiece.beRemovedCamp();
+                        enpassantPiece.getPosition().setPiece(null);
+                        moves.push({from:from,to:to,enpassantPiece:enpassantPiece,movedPiece:selectedPiece,moveType:moveType});
+                        unselectPiece();
+                        switchActiveCamp();
+                    }
+                    //그 외 경우면 수 실행(moveTo)
+                    else{
+                        const from = selectedPiece.getPosition();
+                        const to = board.findPositionByNotation(notation);
+                        const moveType = selectedPiece.getMoveType(to);
+                        const removedPiece = selectedPiece.moveTo(to);
+                        moves.push({from:from,to:to,removedPiece:removedPiece,movedPiece:selectedPiece,moveType:moveType});
+                        unselectPiece();
+                        switchActiveCamp();
+                    }
                 }
             }
         },
@@ -311,8 +340,21 @@ function gameManager(pGameSetter){
                 move.pawn.beRestoredCamp();
                 board.findPositionByNotation(move.pawn.getPosition().getLetter()).setPiece(move.pawn);
                 this.undo();
-            }else{
+            }
+            else if(move.moveType == 'enpassant'){
+                const enpassantPiece = move.enpassantPiece;
+                enpassantPiece.beRestoredCamp();
+                enpassantPiece.getPosition().setPiece(enpassantPiece);
+
                 const movedPiece = move.movedPiece;
+                movedPiece.countBackDc();
+                movedPiece.moveBack(move);
+    
+                switchActiveCamp();
+            }
+            else{
+                const movedPiece = move.movedPiece;
+                movedPiece.countBackDc();
                 movedPiece.moveBack(move);
     
                 switchActiveCamp();
