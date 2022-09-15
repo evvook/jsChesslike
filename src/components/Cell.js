@@ -15,7 +15,7 @@ function Cell(props){
             manager.selectPosition(e.target.id)
             if(props.movePath){
                 const gameContext = manager.getGameContext();
-                dispatch(boardActions.move(gameContext.boardContext))
+                dispatch(boardActions.lay(gameContext.boardContext))
                 
                 const promotionContext = gameContext.promotionContext;
                 if(promotionContext){
@@ -35,7 +35,7 @@ function Cell(props){
         
     }
     return(
-        <div className="cell" id={props.cellId} style={{backgroundColor:props.color}} onClick={click}>{props.children}</div>
+        <div className="cell" id={props.id} style={{backgroundColor:props.color}} onClick={click}>{props.children}</div>
     );
 }
 

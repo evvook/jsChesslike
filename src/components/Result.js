@@ -19,7 +19,7 @@ const Result = () => {
     const click = () => {
         dispatch(resultActions.clear());
         manager.reset();
-        dispatch(boardActions.move(manager.getGameContext().boardContext));
+        dispatch(boardActions.lay(manager.getGameContext().boardContext));
         dialog.current.close();
     };
 

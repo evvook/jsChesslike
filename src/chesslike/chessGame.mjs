@@ -148,8 +148,6 @@ function gameManager(pGameSetter){
     let selectedPiece = null;
     let moves = [];
 
-    let promotionContext;
-
     function selectPiece(notation){
         const position = board.findPositionByNotation(notation);
         if(position.isEmpty()){
@@ -181,25 +179,21 @@ function gameManager(pGameSetter){
             return false;
         }
     }
-    function setPromotionContext(){
-        promotionContext = [
-            {notation:'Q',specialChar:selectedPiece.getCamp().getUnitsSymbol('Q')},
-            {notation:'R',specialChar:selectedPiece.getCamp().getUnitsSymbol('R')},
-            {notation:'B',specialChar:selectedPiece.getCamp().getUnitsSymbol('B')},
-            {notation:'N',specialChar:selectedPiece.getCamp().getUnitsSymbol('N')},
-        ]
-    }
     function getPromotionContext(){
-        const rPromotionContext = promotionContext;
-        promotionContext = null;
-        return rPromotionContext;
+        if(selectedPiece){
+            return [
+                {notation:'Q',specialChar:selectedPiece.getCamp().getUnitsSymbol('Q')},
+                {notation:'R',specialChar:selectedPiece.getCamp().getUnitsSymbol('R')},
+                {notation:'B',specialChar:selectedPiece.getCamp().getUnitsSymbol('B')},
+                {notation:'N',specialChar:selectedPiece.getCamp().getUnitsSymbol('N')},
+            ]
+        }else{
+            return null;
+        }
     }
     function getMatchState(){
-        const units = [];
-        activeCamp.getCampUnits().forEach((unit)=>{
-            if(unit.getPath().flatMap(path=>path).length>0){
-                units.push(unit)
-            }
+        const units = activeCamp.getCampUnits().filter((unit)=>{
+            return unit.getPath().flatMap(path=>path).length>0
         })
         if(units.length>0){
             return {status:'ongoing'}
@@ -292,7 +286,6 @@ function gameManager(pGameSetter){
                     selectPiece(notation);
                 }
                 else if(isPromotion(notation)){
-                    setPromotionContext();
                     const from = selectedPiece.getPosition();
                     const to = board.findPositionByNotation(notation);
                     const moveType = selectedPiece.getMoveType(to);
@@ -355,8 +348,6 @@ function gameManager(pGameSetter){
         
             selectedPiece = null;
             moves = [];
-        
-            promotionContext = null;
         }
     }
 }

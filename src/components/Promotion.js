@@ -26,7 +26,7 @@ function Promotion(){
         dialog.current.close();
 
         if(matchContext.status === 'ongoing'){
-            dispatch(boardActions.move(gameContext.boardContext));
+            dispatch(boardActions.lay(gameContext.boardContext));
         }else{
             dispatch(resultActions.set(matchContext))
         }

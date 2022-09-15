@@ -3,16 +3,15 @@ import * as game from '../chesslike/chessGame.mjs'
 
 //액션타입
 const SELECT = 'board/SELECT';
-const MOVE = 'board/MOVE';
+const LAY = 'board/LAY';
 
 //액션 생성 함수
 export const select = (path) => ({
     type:SELECT,
     path:path
 });
-export const move = (boardContext) => ({
-    type:MOVE,
-    path:[],
+export const lay = (boardContext) => ({
+    type:LAY,
     boardContext:boardContext
 });
 
@@ -40,12 +39,11 @@ function board(state = initialState, action){
             return {
                 ...state,
                 movePath:action.path
-                
             }
-        case MOVE:
+        case LAY:
             return {
                 ...state,
-                movePath:action.path,
+                movePath:[],
                 boardContext:action.boardContext
             }         
         default:

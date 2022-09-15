@@ -9,7 +9,7 @@ function Buttons(){
 
     const click = () => {
         manager.undo();
-        dispatch(boardActions.move((manager.getGameContext().boardContext)));
+        dispatch(boardActions.lay((manager.getGameContext().boardContext)));
     }
 
     return (
