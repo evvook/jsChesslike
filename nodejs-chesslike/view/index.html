@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script type="text/javascript">
+    var mgr = null;
+    var undoGame = null;
+</script>
+<script type="module">
+    // import * as cgm from "/chesslike/chessGame.mjs";
+    import * as dv from "/chesslike/drawView.mjs";
+
+    // const manager = cgm.gameManager(cgm.standardGameSetter);
+
+    window.onload = function(){
+        // dv.drawGame(manager.getBoardAxis(),manager.getGameContext(),null,click);
+        ajaxRequest({status:'start'})
+    }
+
+    const click = function(){
+        let position = this;
+        let pieceSelector = "#"+this.id+" .piece";
+        let piece = document.querySelector(pieceSelector);
+        
+        console.log(position.id);
+        try{
+            // manager.selectPosition(position.id);
+            ajaxRequest({status:'select',selectedPositionId:position.id})
+        }catch(e){
+            let message;
+            if(e == 'NotSelectInactivePieceException'){
+                message = '선택할 수 없는 기물 입니다.';
+            }else if(e == 'ThereIsAnyPieceException'){
+                message = '선택한 위치에 기물이 없습니다.';
+            }else if(e == 'NotMoveOutOfPathException'){
+                message = '가능한 수가 아닙니다.';
+            }else{
+                throw e;
+            }
+            //alert(message);
+            let dialog = document.querySelector('dialog');
+            dialog.addEventListener('click', (event) => {
+            if (event.target.nodeName === 'DIALOG') {
+                dialog.close();
+            }});
+            (()=>{
+                dialog.innerText = message;
+                dialog.showModal();
+                // setTimeout(()=>{
+                //     dialog.close();
+                // },1500)
+            })()
+        }
+        
+        // dv.drawGame(manager.getBoardAxis(),manager.getGameContext(),manager.getMovePath(),click);
+    }
+
+    function undo(){
+        // manager.undo()
+        // dv.drawGame(manager.getBoardAxis(),manager.getGameContext(),null,click);
+    }
+
+    // mgr = manager;
+    // undoGame = undo;
+ 
+    function ajaxRequest(reqJson){
+        // const reqJson = {status:'start'};
+
+        const httpRequest = new XMLHttpRequest();
+        httpRequest.onreadystatechange = () => {
+            if(httpRequest.readyState === XMLHttpRequest.DONE){
+                if(httpRequest.status === 200){
+                    const result = httpRequest.response;
+                    afterwork(result);
+                } else{
+                    alert('문제가 있음');
+                }
+            }
+        }
+
+        httpRequest.open('POST','/test',true);
+        httpRequest.responseType = 'json';
+        httpRequest.setRequestHeader('Content-Type','application/json')
+        httpRequest.send(JSON.stringify(reqJson));
+    }
+
+    function afterwork(result){
+        if(result.message){
+            let message;
+            if(result.message == 'NotSelectInactivePieceException'){
+                message = '선택할 수 없는 기물 입니다.';
+            }else if(result.message == 'ThereIsAnyPieceException'){
+                message = '선택한 위치에 기물이 없습니다.';
+            }else if(result.message == 'NotMoveOutOfPathException'){
+                message = '가능한 수가 아닙니다.';
+            }else{
+                throw message;
+            }
+            let dialog = document.querySelector('dialog');
+            dialog.addEventListener('click', (event) => {
+            if (event.target.nodeName === 'DIALOG') {
+                dialog.close();
+            }});
+            (()=>{
+                dialog.innerText = message;
+                dialog.showModal();
+            })()
+        }else{
+            dv.drawGame(result.boardAxis,result.gameContext,result.pathContext,click);
+        }
+    }
+
+
+</script>
+<body>
+    <dialog></dialog>
+    <div id="board"></div>
+</body>
+</html>

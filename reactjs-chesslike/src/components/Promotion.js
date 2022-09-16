@@ -9,7 +9,7 @@ import * as resultActions from '../modules/result'
 function Promotion(){
 
     const promotions = useSelector(state=>state.promotionData.promotions);
-    const manager = useSelector(state=>state.boardData.manager);
+    const {ajaxRequest, gameToken} = useSelector(state=>state.boardData);
     const dispatch = useDispatch();
 
     const dialog = useRef()
@@ -18,18 +18,18 @@ function Promotion(){
     }
     
     const click = (event) => {
-        manager.promotion(event.target.id);
-        const gameContext = manager.getGameContext();
-
-        const matchContext = gameContext.matchContext;
-        dispatch(promotionActions.clear())
-        dialog.current.close();
-
-        if(matchContext.status === 'ongoing'){
-            dispatch(boardActions.lay(gameContext.boardContext));
-        }else{
-            dispatch(resultActions.set(matchContext))
-        }
+        ajaxRequest({status:'promotion',gameToken,selectedPositionId:event.target.id},function(result){
+            const gameContext = result.gameContext;
+            const matchContext = gameContext.matchContext;
+            dispatch(promotionActions.clear())
+            dialog.current.close();
+    
+            if(matchContext.status === 'ongoing'){
+                dispatch(boardActions.lay(gameContext.boardContext));
+            }else{
+                dispatch(resultActions.set(matchContext))
+            }
+        },true)
 
     }
 

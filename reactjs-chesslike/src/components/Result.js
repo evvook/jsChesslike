@@ -10,7 +10,7 @@ const Result = () => {
     const dialog = useRef()
 
     const {result} = useSelector(state=>state.resultData);
-    const {manager} = useSelector(state=>state.boardData);
+    const {ajaxRequest,gameToken} = useSelector(state=>state.boardData);
 
     if(result !== undefined && dialog.current && !dialog.current.open){
         dialog.current.showModal();
@@ -18,9 +18,10 @@ const Result = () => {
 
     const click = () => {
         dispatch(resultActions.clear());
-        manager.reset();
-        dispatch(boardActions.lay(manager.getGameContext().boardContext));
-        dialog.current.close();
+        ajaxRequest({status:'reset',gameToken:gameToken},(result)=>{
+            dispatch(boardActions.lay(result.gameContext.boardContext));
+            dialog.current.close();
+        },true);
     };
 
     return (

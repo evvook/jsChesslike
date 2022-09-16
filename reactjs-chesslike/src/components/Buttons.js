@@ -4,12 +4,13 @@ import * as boardActions from '../modules/board'
 
 function Buttons(){
 
-    const manager = useSelector(state=>state.boardData.manager);
+    const {ajaxRequest,gameToken} = useSelector(state=>state.boardData);
     const dispatch = useDispatch();
 
     const click = () => {
-        manager.undo();
-        dispatch(boardActions.lay((manager.getGameContext().boardContext)));
+        ajaxRequest({status:'undo',gameToken:gameToken},(result)=>{
+            dispatch(boardActions.lay((result.gameContext.boardContext)));
+        },true);
     }
 
     return (

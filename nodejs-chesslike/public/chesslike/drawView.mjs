@@ -101,7 +101,8 @@ function makeBoardTalbe(board,click){
     return table;
 }    
 
-function setGameInfo(positions,movesPositions){
+function setGameInfo(gameContext,movesPositions){
+    const positions = gameContext.boardContext;
     for(let idx in positions){
         let position = positions[idx];
         let positionElement = document.querySelector("#"+position.notation);
