@@ -269,13 +269,13 @@ function extendsPieceToChessPiece(piecesPrototype,board){
             },
             countBack:function(){
                 relativeCount -= 1;
-                if(relativeCount == 0){
+                if(relativeCount === 0){
                     hasMoved = false;
                 }
             },
             getCastlingInfo(to){
-                if(this.getRank() != 'K'){
-                    throw 'OnlyKingMovesCastlingException';
+                if(this.getRank() !== 'K'){
+                    throw Error('OnlyKingMovesCastlingException');
                 }
                 const castlingSide = prepareCastling(piece,to);
                 return {rook:castlingRook,castlingSide:castlingSide};
@@ -298,7 +298,7 @@ function extendsPieceToChessPiece(piecesPrototype,board){
             castlingSide = 'queenSide';
         }
         piece.getCamp().findCampUnits('R').forEach((unit)=>{
-            if(unit.getPosition().getLetter() == rooksPositionsNotation){
+            if(unit.getPosition().getLetter() === rooksPositionsNotation){
                 castlingRook = unit;
                 castlingRooksMove.from = board.findPositionByNotation(rooksPositionsNotation);
                 castlingRooksMove.to = board.findPositionByNotation(rooksCastlingPositionNotation);
@@ -319,7 +319,7 @@ function extendsPieceToChessPiece(piecesPrototype,board){
             Object.getPrototypeOf(piece).moveTo(to);
             Object.getPrototypeOf(castlingRook).moveTo(castlingRooksMove.to);
         }catch(e){
-            if(e == 'NotMoveOutOfPathException'){
+            if(e.message === 'NotMoveOutOfPathException'){
                 piece.countBack();
                 castlingRook.countBack();
             }
@@ -337,7 +337,7 @@ function extendsPieceToChessPiece(piecesPrototype,board){
     piece.moveTo = function(position){
 
         const moveType = piecesPrototype.getMoveType(position);
-        if(moveType == 'castling'){
+        if(moveType === 'castling'){
             castling(this,position);
         }else{
             try{
@@ -345,7 +345,7 @@ function extendsPieceToChessPiece(piecesPrototype,board){
                 this.countTurn();
                 return piecesPrototype.moveTo(position);
             }catch(e){
-                if(e == 'NotMoveOutOfPathException'){
+                if(e.message === 'NotMoveOutOfPathException'){
                     this.countBack();
                 }
                 throw e;
@@ -354,7 +354,7 @@ function extendsPieceToChessPiece(piecesPrototype,board){
     }
 
     piece.moveBack = function(move){
-        if(move.moveType == 'castling'){
+        if(move.moveType === 'castling'){
             this.countBack();
             castlingRook.countBack();
 

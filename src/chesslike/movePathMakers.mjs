@@ -15,7 +15,7 @@ function makeMovePathTo(pFinders){
                         break;
                     }
                 }catch(e){
-                    if(e == 'NotIncludesBoardException'){
+                    if(e.message === 'NotIncludesBoardException'){
                         paths.push(directionPath);
                         break;
                     }else{
@@ -46,7 +46,7 @@ function makeMovePathOn(pFinderGrp){
                         break;
                     }
                 }catch(e){
-                    if(e == 'NotIncludesBoardException'){
+                    if(e.message === 'NotIncludesBoardException'){
                         tempPath = [];
                         break;
                     }else{

@@ -11,7 +11,7 @@ function makePosition(x,y){
             return x+''+y;
         },
         equals : function(position){
-            if(x == position.getAxisX() && y == position.getAxisY()){
+            if(x === position.getAxisX() && y === position.getAxisY()){
                return true; 
             }else{
                 return false;
@@ -44,7 +44,7 @@ function makeBoard(axisX,axisY){
             if(axisX.includes(x) &&  axisY.includes(y)){
                 return board[x+''+y];
             }else{
-                throw 'NotIncludesBoardException';
+                throw Error('NotIncludesBoardException');
             }
 
         },
@@ -59,7 +59,7 @@ function makeBoard(axisX,axisY){
             if(board.hasOwnProperty(notation)){
                 return board[notation];
             }else{
-                throw 'NotIncludesBoardException';
+                throw Error('NotIncludesBoardException');
             }
         },
         getPositions:function(){
@@ -101,7 +101,7 @@ function makeCamp(name,advanceSide,unitsSymbols){
             if(representativesRank != null){
                 for(let idx in campUnits){
                     const unit = campUnits[idx];
-                    if(representativesRank == unit.getRank()){
+                    if(representativesRank === unit.getRank()){
                         representative = unit;
                         break;
                     }
@@ -120,7 +120,7 @@ function makeCamp(name,advanceSide,unitsSymbols){
         join:function(unit){
             //이미 속해있는 경우
             if(unit.getCamp() != null){
-                throw 'AlreadyInvolvedSomeCampException';
+                throw Error('AlreadyInvolvedSomeCampException');
             }
             campUnits.push(unit);
             unit.setCamp(this);
@@ -141,7 +141,7 @@ function makeCamp(name,advanceSide,unitsSymbols){
             const rUnits = [];
             for(let idx in campUnits){
                 const unit = campUnits[idx];
-                if(rank == unit.getRank()){
+                if(rank === unit.getRank()){
                     rUnits.push(unit);
                 }
             }
@@ -155,7 +155,7 @@ function makeCamp(name,advanceSide,unitsSymbols){
                 representativesRank = rank;
                 setRepresentative();
             }else{
-                throw 'RepresentativesRankAlreadySetException';
+                throw Error('RepresentativesRankAlreadySetException');
             }
         },
         getRepresentative:function(){
@@ -165,7 +165,7 @@ function makeCamp(name,advanceSide,unitsSymbols){
             if(opposite == null){
                 opposite = camp;
             }else{
-                throw 'OppositeCampAlreadySetException';
+                throw Error('OppositeCampAlreadySetException');
             }
         },
         getOpposite:function(){
@@ -179,14 +179,14 @@ function makeCamp(name,advanceSide,unitsSymbols){
         },
         removeUnit:function(unit){
             const removedUnitsIndex = campUnits.indexOf(unit);
-            if(removedUnitsIndex != -1){
+            if(removedUnitsIndex !== -1){
                 campUnits.splice(removedUnitsIndex,1);
                 removedCampUnits.push(unit);
             }
         },
         restoreUnit:function(unit){
             const restoredUnitsIndex = removedCampUnits.indexOf(unit);
-            if(restoredUnitsIndex != -1){
+            if(restoredUnitsIndex !== -1){
                 removedCampUnits.splice(restoredUnitsIndex);
                 campUnits.push(unit);
             }
@@ -243,13 +243,13 @@ function makePiece(rank,pieceMoveMakers){
             if(onPosition == null){
                 setPosition(this,position);
             }else{
-                throw 'AlreadySetOnBoardException';
+                throw Error('AlreadySetOnBoardException');
             }
         },
         setCamp:function(camp){
             //이미 속해있는 경우
             if(involvedCamp != null){
-                throw 'AlreadyInvolvedSomeCampException';
+                throw Error('AlreadyInvolvedSomeCampException');
             }
             involvedCamp = camp;
             spacialChar = camp.getUnitsSymbol(rank);
@@ -282,7 +282,7 @@ function makePiece(rank,pieceMoveMakers){
                     }
                 }
                 if(!to.equals(onPosition)){
-                    throw 'NotMoveOutOfPathException';
+                    throw Error('NotMoveOutOfPathException');
                 }
             }
             if(removedPiece!=null){

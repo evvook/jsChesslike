@@ -46,8 +46,8 @@ function getPawnMoveFilter(filter){
         const rPath = path.map((to) => {
             let fromY = from.getAxisY();
             let toY = to.getAxisY();
-            if(('upside' == from.getPiece().getCamp().getAdvanceSide() && toY > fromY)
-                || ('downside' == from.getPiece().getCamp().getAdvanceSide() && toY < fromY)){
+            if(('upside' === from.getPiece().getCamp().getAdvanceSide() && toY > fromY)
+                || ('downside' === from.getPiece().getCamp().getAdvanceSide() && toY < fromY)){
                 return to;
             }else{
                 return null;
@@ -66,11 +66,11 @@ function getPawnFirstMoveFilter(filter){
         const rPath = path.map((to) => {
             let fromY = from.getAxisY();
             let toY = to.getAxisY();
-            if(('upside' == from.getPiece().getCamp().getAdvanceSide() && fromY == 2)
-                || ('downside' == from.getPiece().getCamp().getAdvanceSide() && fromY == 7)){
+            if(('upside' === from.getPiece().getCamp().getAdvanceSide() && fromY === '2')
+                || ('downside' === from.getPiece().getCamp().getAdvanceSide() && fromY === '7')){
                     return to;
             }else{
-                if(Math.abs(fromY - toY) == 1){
+                if(Math.abs(fromY - toY) === 1){
                     return to
                 }else{
                     return null;
@@ -124,7 +124,7 @@ function getCastlingFilter(filter,board){
     function isAttacked(passedPosition,oppositeUnits){
         let result = false;
         oppositeUnits.forEach((unit)=>{
-            if(unit.getRank() != 'K'){
+            if(unit.getRank() !== 'K'){
                 const paths = unit.getPath();
                 paths.forEach((path)=>{
                     path.forEach((position)=>{
@@ -155,14 +155,14 @@ function getCastlingFilter(filter,board){
             const kingsPassedPositions = [];
             const rooksPassdPositions = [];
             const castlingSide = castlingInfo.castlingSide;
-            if(castlingSide == 'kingSide'){
-                if(rook == null || rook.getPosition().getLetter() != 'h'+king.getPosition().getAxisY()){
+            if(castlingSide === 'kingSide'){
+                if(rook == null || rook.getPosition().getLetter() !== 'h'+king.getPosition().getAxisY()){
                     return null;
                 }
                 rooksPassdPositions.push(board.findPositionByNotation('f'+king.getPosition().getAxisY()));
                 kingsPassedPositions.push(board.findPositionByNotation('g'+king.getPosition().getAxisY()));
-            }else if(castlingSide == 'queenSide'){
-                if(rook == null || rook.getPosition().getLetter() != 'a'+king.getPosition().getAxisY()){
+            }else if(castlingSide === 'queenSide'){
+                if(rook == null || rook.getPosition().getLetter() !== 'a'+king.getPosition().getAxisY()){
                     return null;
                 }
                 rooksPassdPositions.push(board.findPositionByNotation('b'+king.getPosition().getAxisY()));
@@ -215,13 +215,13 @@ function getEnpassantFilter(filter,board){
             if(to.isEmpty()){
                 let position;
                 try{
-                    if(from.getPiece().getCamp().getAdvanceSide() == 'upside'){
+                    if(from.getPiece().getCamp().getAdvanceSide() === 'upside'){
                         position = board.getPosition(to.getAxisX(),String.fromCharCode(to.getAxisY().charCodeAt(0)-1));
                     }else{
                         position = board.getPosition(to.getAxisX(),String.fromCharCode(to.getAxisY().charCodeAt(0)+1));
                     }
                 }catch(err){
-                    if(err == 'NotIncludesBoardException'){
+                    if(err.message === 'NotIncludesBoardException'){
                         return null;
                     }else{
                         throw err;
@@ -232,20 +232,20 @@ function getEnpassantFilter(filter,board){
                     return null;
                 }else if(from.getPiece().getCamp().isInvolved(position.getPiece())){
                     return null;
-                }else if(position.getPiece().getRank() != 'P'){
+                }else if(position.getPiece().getRank() !== 'P'){
                     return null;
                 }else{
                     const oppositePawn = position.getPiece();
-                    if(!oppositePawn.isMoved() || oppositePawn.getDefendentCount() != 0){
+                    if(!oppositePawn.isMoved() || oppositePawn.getDefendentCount() !== 0){
                         return null;
                     }else{
                         let deff;
-                        if(oppositePawn.getCamp().getAdvanceSide() == 'upside'){
+                        if(oppositePawn.getCamp().getAdvanceSide() === 'upside'){
                             deff = Math.abs(oppositePawn.getPosition().getAxisY() - 2);
                         }else{
                             deff = Math.abs(oppositePawn.getPosition().getAxisY() - 7);
                         }
-                        if(deff != 2){
+                        if(deff !== 2){
                             return null;
                         }else{
                             return to;
@@ -288,7 +288,7 @@ function getProtectRepresentativeFilter(filter){
                     path.forEach((position)=>{
                         if(!position.isEmpty()){
                             const piece = position.getPiece();
-                            if(piece == representaitve){
+                            if(piece === representaitve){
                                 check = true;
                             }
                         }

@@ -75,9 +75,9 @@ function standardGameSetter(){
             return chessBoard;
         },
         getCamp:function(name){
-            if(name == 'white'){
+            if(name === 'white'){
                 return white;
-            }else if(name == 'black'){
+            }else if(name === 'black'){
                 return black;
             }
         }
@@ -126,9 +126,9 @@ function stalemateGameSetter(){
             return chessBoard;
         },
         getCamp:function(name){
-            if(name == 'white'){
+            if(name === 'white'){
                 return white;
-            }else if(name == 'black'){
+            }else if(name === 'black'){
                 return black;
             }
         }
@@ -151,11 +151,11 @@ function gameManager(pGameSetter){
     function selectPiece(notation){
         const position = board.findPositionByNotation(notation);
         if(position.isEmpty()){
-            throw 'ThereIsAnyPieceException';
+            throw Error('ThereIsAnyPieceException');
         }
         const piece = position.getPiece();
         if(!activeCamp.isInvolved(piece)){
-            throw 'NotSelectInactivePieceException';
+            throw Error('NotSelectInactivePieceException');
         }
         selectedPiece = piece;
     }
@@ -168,12 +168,12 @@ function gameManager(pGameSetter){
         [activeCamp, oppositeCamp] = [oppositeCamp, activeCamp]
     }
     function isPromotion(notation){
-        if(selectedPiece.getRank() != 'P'){
+        if(selectedPiece.getRank() !== 'P'){
             return false;
         }
-        if('upside' == selectedPiece.getCamp().getAdvanceSide() && '8' == board.findPositionByNotation(notation).getAxisY()){
+        if('upside' === selectedPiece.getCamp().getAdvanceSide() && '8' === board.findPositionByNotation(notation).getAxisY()){
             return true;
-        }else if('downside' == selectedPiece.getCamp().getAdvanceSide() && '1' == board.findPositionByNotation(notation).getAxisY()){
+        }else if('downside' === selectedPiece.getCamp().getAdvanceSide() && '1' === board.findPositionByNotation(notation).getAxisY()){
             return true;
         }else{
             return false;
@@ -200,7 +200,7 @@ function gameManager(pGameSetter){
         }else{
             const checkmate = oppositeCamp.getCampUnits().find((unit)=>{
                 const paths = unit.getPath().flatMap(path=>path);
-                return paths.find(position=>position.getPiece()==activeCamp.getRepresentative())
+                return paths.find(position=>position.getPiece()===activeCamp.getRepresentative())
             })
             if(checkmate){
                 return {status:'checkmate', win:checkmate.getCamp().getName()}
@@ -211,7 +211,7 @@ function gameManager(pGameSetter){
     }
     function isEnpassant(notation){
         const to = board.findPositionByNotation(notation);
-        return selectedPiece.getMoveType(to) == 'enpassant';
+        return selectedPiece.getMoveType(to) === 'enpassant';
     }
     return {
         getBoardAxis:function(){
@@ -237,7 +237,7 @@ function gameManager(pGameSetter){
                     const camp = piece.getCamp();
                     const campContext = {}
                     campContext['name'] = camp.getName();
-                    campContext['activeStatus'] = (camp == activeCamp)?'ACTIVE':'INACTIVE';
+                    campContext['activeStatus'] = (camp === activeCamp)?'ACTIVE':'INACTIVE';
 
                     pieceContext.camp = campContext;
 
@@ -276,7 +276,7 @@ function gameManager(pGameSetter){
                 selectPiece(notation);
 
                 //수가 없다면 언셀렉트
-                if(selectedPiece.getPath().length == 0){
+                if(selectedPiece.getPath().length === 0){
                     unselectPiece();
                 }
             }else{
@@ -293,7 +293,7 @@ function gameManager(pGameSetter){
                     //의존 카운트를 진행
                     if(moves.length>0){
                         let lastMove = moves[moves.length-1];
-                        if(lastMove.moveType == 'promotion'){
+                        if(lastMove.moveType === 'promotion'){
                             lastMove = moves[moves.length-2];
                         }
                         const lastMovedPiece = lastMove.movedPiece;
@@ -335,13 +335,13 @@ function gameManager(pGameSetter){
         },
         undo:function(){
             const move = moves.pop();
-            if(move.moveType == 'promotion'){
+            if(move.moveType === 'promotion'){
                 move.promotion.beRemovedCamp();
                 move.pawn.beRestoredCamp();
                 board.findPositionByNotation(move.pawn.getPosition().getLetter()).setPiece(move.pawn);
                 this.undo();
             }
-            else if(move.moveType == 'enpassant'){
+            else if(move.moveType === 'enpassant'){
                 const enpassantPiece = move.enpassantPiece;
                 enpassantPiece.beRestoredCamp();
                 enpassantPiece.getPosition().setPiece(enpassantPiece);
@@ -363,13 +363,13 @@ function gameManager(pGameSetter){
         promotion(notation){
             let promotionMaker;
             const positionNotation = selectedPiece.getPosition().getLetter();
-            if('Q' == notation){
+            if('Q' === notation){
                 promotionMaker = queenMaker(board);
-            }else if('R' == notation){
+            }else if('R' === notation){
                 promotionMaker = rookMaker(board);
-            }else if('B' == notation){
+            }else if('B' === notation){
                 promotionMaker = bishopMaker(board);
-            }else if('N' == notation){
+            }else if('N' === notation){
                 promotionMaker = knightMaker(board);
             }
             promotionMaker.setCamp(selectedPiece.getCamp());
