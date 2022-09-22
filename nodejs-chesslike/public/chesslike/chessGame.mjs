@@ -148,6 +148,8 @@ function gameManager(pGameSetter){
     let selectedPiece = null;
     let moves = [];
 
+    let giveUp = null;
+
     function selectPiece(notation){
         const position = board.findPositionByNotation(notation);
         if(position.isEmpty()){
@@ -192,6 +194,14 @@ function gameManager(pGameSetter){
         }
     }
     function getMatchState(){
+        if(giveUp){
+            if(giveUp === 'white'){
+                return {status:'giveUp', win:'black'}
+            }else if(giveUp === 'black'){
+                return {status:'giveUp', win:'white'}
+            }
+        }
+
         const units = activeCamp.getCampUnits().filter((unit)=>{
             return unit.getPath().flatMap(path=>path).length>0
         })
@@ -249,6 +259,7 @@ function gameManager(pGameSetter){
             gameContext.boardContext = boardContext;
             gameContext.promotionContext = getPromotionContext();
             gameContext.matchContext = getMatchState();
+            gameContext.activeContext = activeCamp.getName();
             return gameContext;
         },
         getMovePath(){
@@ -360,7 +371,7 @@ function gameManager(pGameSetter){
                 switchActiveCamp();
             }
         },
-        promotion(notation){
+        promotion:function(notation){
             let promotionMaker;
             const positionNotation = selectedPiece.getPosition().getLetter();
             if('Q' === notation){
@@ -379,7 +390,7 @@ function gameManager(pGameSetter){
             unselectPiece();
             switchActiveCamp();
         },
-        reset(){
+        reset:function(){
             gameSetter = pGameSetter();
             board = gameSetter.getBoard();
             white = gameSetter.getCamp('white');
@@ -390,6 +401,12 @@ function gameManager(pGameSetter){
         
             selectedPiece = null;
             moves = [];
+        },
+        getActiveCamp:function(){
+            return activeCamp.getName();
+        },
+        giveUp:function(camp){
+            giveUp = camp;
         }
     }
 }

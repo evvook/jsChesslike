@@ -5,11 +5,12 @@ import "./Promotion.css"
 import * as boardActions from '../modules/board'
 import * as promotionActions from '../modules/promotion'
 import * as resultActions from '../modules/result'
+import getAjax from "../utils/ajax";
 
 function Promotion(){
 
     const promotions = useSelector(state=>state.promotionData.promotions);
-    const {ajaxRequest, gameToken} = useSelector(state=>state.boardData);
+    const gameToken = useSelector(state=>state.boardData.gameToken);
     const dispatch = useDispatch();
 
     const dialog = useRef()
@@ -18,7 +19,8 @@ function Promotion(){
     }
     
     const click = (event) => {
-        ajaxRequest({status:'promotion',gameToken,selectedPositionId:event.target.id},function(result){
+        const ajax = getAjax('/play');
+        ajax.request({status:'promotion',gameToken,selectedPositionId:event.target.id},function(result){
             const gameContext = result.gameContext;
             const matchContext = gameContext.matchContext;
             dispatch(promotionActions.clear())

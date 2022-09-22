@@ -1,10 +1,13 @@
-import BoardContainer from "./BoardContainer";
+import GameContainer from "./GameContainer";
+import ListContainer from "./ListContainer";
+import {Routes,Route} from 'react-router-dom';
 
 function App(){
     return(
-        <div>
-            <BoardContainer/>
-        </div>
+        <Routes>
+            <Route path="/" element={<ListContainer/>}/>
+            <Route path="/game/:gameToken/" element={<GameContainer/>}/>
+        </Routes>
     )
 }
 
