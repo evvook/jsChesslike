@@ -2,99 +2,117 @@ import getAjax from '../utils/ajax'
 
 //액션타입
 const SETUP = 'board/SETUP';
-const SELECT = 'board/SELECT';
-const LAY = 'board/LAY';
 const RELOAD = 'board/RELOAD'
+const SELECT = 'board/SELECT';
+const PROMOTION = 'board/PROMOTION'
+const UNDO = 'board/UNDO'
 const RESET = 'board/RESET'
 const QUIT = 'board/QUIT'
+const ERR_MSG_CLEAR = 'board/ERR_MSG_CLEAR'
 
 
 //액션 생성 함수
-export const setup = (gameToken) => ({
+export const setup = (gameToken,playType) => ({
     type:SETUP,
-    gameToken:gameToken
+    gameToken:gameToken,
+    playType:playType
 })
-export const select = (path) => ({
-    type:SELECT,
-    path:path
-});
-export const lay = (boardContext) => ({
-    type:LAY,
-    boardContext:boardContext
-});
 export const reload = (gameToken) => ({
     type:RELOAD,
     gameToken:gameToken
 })
-export const reset = (gameToken) => ({
-    type:RESET,
-    gameToken:gameToken
+export const select = (positionId) => ({
+    type:SELECT,
+    positionId:positionId
+});
+export const promotion = (positionId) => ({
+    type:PROMOTION,
+    positionId:positionId
 })
-export const quit = (gameToken,playerKey,kind) => ({
+export const undo = () => ({
+    type:UNDO
+})
+export const reset = () => ({
+    type:RESET
+})
+export const quit = (kind) => ({
     type:QUIT,
-    gameToken:gameToken,
-    playerKey:playerKey,
     kind:kind
+})
+export const errMsgClear = () => ({
+    type:ERR_MSG_CLEAR
 })
 
 //초기상태
 const initialState = {
     cells:[],
     boardContext:[],
-    gameToken:undefined
+    movePath:[],
+    matchContext:null,
+    promotionContext:null,
+    gameToken:null,
+    playerKey:null,
+    player:{},
+    active:null,
+    errMessage:null,
+    lastMoveId:null,
 };
 
 //리듀서
 function board(state = initialState, action){
-    const ajax = getAjax('/play')
+    // const ajax = getAjax('/play')
+    let ajax =  getAjax('/play_'+state.playType)
     switch(action.type){
         case SETUP:
-            const rData = {...initialState};
-            ajax.request({status:'start',gameToken:action.gameToken},function(result){
-                rData.cells = result.cells;
-                rData.boardContext = result.gameContext.boardContext;
-                rData.gameToken = result.gameToken;
-                rData.playerKey = result.playerKey;
-                rData.player = result.player;
-                rData.active = result.gameContext.activeContext;
-            },false)
-            return rData;
-        case SELECT:
-            return {
-                ...state,
-                movePath:action.path
-            }
-        case LAY:
-            return {
-                ...state,
-                movePath:[],
-                boardContext:action.boardContext
-            } 
+            ajax = getAjax('/play_'+action.playType)
+            ajax.requestGame({status:'start',gameToken:action.gameToken})
+            const setupResult = ajax.getRespnoseGame();
+            return {...initialState,
+                    playType:action.playType,
+                    ...setupResult,
+                    lastMoveId:null};
         case RELOAD:
-            const reloadData = {...state};
-            ajax.request({status:'reload',gameToken:action.gameToken},function(result){
-                reloadData.boardContext = result.gameContext.boardContext;
-                reloadData.gameToken = result.gameToken;
-                reloadData.matchContext = result.gameContext.matchContext;
-                reloadData.player = result.player;
-                reloadData.active = result.gameContext.activeContext;
-
-            },false);
-            return reloadData;
+            ajax.requestGame({status:'reload',gameToken:action.gameToken});
+            const reloadResult = ajax.getRespnoseGame()
+            return {...state,
+                    ...reloadResult
+                };
+        case SELECT:
+            ajax.requestGame({status:'select',gameToken:state.gameToken,playerKey:state.playerKey,selectedPositionId:action.positionId});
+            const selectResult = ajax.getRespnoseGame();
+            try{
+                if(selectResult.message){
+                    throw selectResult.message
+                }
+                return {...state,...selectResult, errMessage:null}
+            }catch(err){
+                if(['ThereIsAnyPieceException',
+                    'NotSelectInactivePieceException',
+                    'NotMoveOutOfPathException',
+                    'NotMovePlayerException',
+                    'NotInTwoPlayerException'].includes(err)){
+                        return {...state, errMessage:err}
+                }else{
+                    throw err;
+                }
+            }
+        case PROMOTION:
+            ajax.requestGame({status:'promotion',gameToken:state.gameToken,playerKey:state.playerKey,selectedPositionId:action.positionId})
+            const promotionResult = ajax.getRespnoseGame();
+            return {...state,...promotionResult};
+        case UNDO:
+            ajax.requestGame({status:'undo',gameToken:state.gameToken})
+            const undoResult = ajax.getRespnoseGame();
+            return {...state,...undoResult,movePath:[]}
         case RESET:
-            const resetData = {...state};
-            ajax.request({status:'reset',gameToken:action.gameToken},function(result){
-                reloadData.boardContext = result.gameContext.boardContext;
-                reloadData.gameToken = result.gameToken;
-            },false)
-            return resetData;
+            ajax.requestGame({status:'reset',gameToken:state.gameToken})
+            const resetResult = ajax.getRespnoseGame();
+            return {...state,...resetResult};
         case QUIT:
-            const quitData = {...state}
-            ajax.request({status:'quit',gameToken:action.gameToken,playerKey:action.playerKey,kind:action.kind},function(result){
-                quitData.gameToken = undefined;
-                quitData.playerKey = undefined;
-            },false)
-            return quitData;
+            ajax.requestGame({status:'quit',gameToken:state.gameToken,playerKey:state.playerKey,kind:action.kind})
+            return {...initialState};
+        case ERR_MSG_CLEAR:
+            return {...state, errMessage:null}
         default:
             return state;
     }

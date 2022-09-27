@@ -13,13 +13,11 @@ const initialState = {
 const list = (state = initialState, action) => {
     switch(action.type){
         case LOAD:
-            const loadData = {...state}
             const ajax = getAjax('/list')
 
-            ajax.request({},function(result){
-                loadData.list = result;
-            },false)
-            return loadData;
+            ajax.requestList();
+            const listState = ajax.getResponseList();
+            return {...state,list:listState};
         default:
             return state;
     }

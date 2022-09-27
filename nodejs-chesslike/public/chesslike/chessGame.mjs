@@ -260,6 +260,14 @@ function gameManager(pGameSetter){
             gameContext.promotionContext = getPromotionContext();
             gameContext.matchContext = getMatchState();
             gameContext.activeContext = activeCamp.getName();
+            if(moves.length>0){
+                const lastMove = moves[moves.length-1];
+                if(lastMove.moveType === 'promotion'){
+                    gameContext.lastMoveContext = moves[moves.length-2].to.getLetter();
+                }else{
+                    gameContext.lastMoveContext = lastMove.to.getLetter();
+                }
+            }
             return gameContext;
         },
         getMovePath(){

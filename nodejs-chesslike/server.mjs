@@ -42,6 +42,13 @@ function createGameContainer(){
     return {
         setGame:function(id,gameManager){
             games[id] = { gameManager:gameManager, count:0 };
+            //카운트 시작
+            games[id].itId = setInterval(()=>{
+                games[id].count += 1
+                if(games[id].count === 600){
+                    this.removeGame(id);
+                }
+            },1000)
         },
         getGame:function(id){
             return games[id];
@@ -52,14 +59,6 @@ function createGameContainer(){
                 game.white = playerKey
                 return 'first';
             }else if(!game.black){
-                //카운트 시작
-                games[id].itId = setInterval(()=>{
-                    games[id].count += 1
-                    if(games[id].count === 120){
-                        this.removeGame(id);
-                    }
-                },1000)
-
                 game.black = playerKey
                 return 'second';
             }
@@ -94,6 +93,7 @@ function createGameContainer(){
 }
 
 const gameContainer = createGameContainer();
+const singleGameContainer = createGameContainer();
 
 app.post('/chesslike/list',jsonParsor,function(request,response){
     response.header("Access-Control-Allow-Origin","*");
@@ -118,7 +118,21 @@ app.post('/chesslike/setup',jsonParsor,function(request,response){
     response.send(JSON.stringify(result))
 });
 
-app.post('/chesslike/play',jsonParsor,function(request,response){
+app.post('/chesslike/setup_single',jsonParsor,function(request,response){
+    response.header("Access-Control-Allow-Origin","*");
+
+    const chessGameManager = cg.gameManager(cg.standardGameSetter);
+    const gameToken = request.sessionID;
+    singleGameContainer.setGame(gameToken,chessGameManager);
+
+    const result = {
+        gameToken:gameToken
+    }
+
+    response.send(JSON.stringify(result))
+});
+
+app.post('/chesslike/play_multi',jsonParsor,function(request,response){
     response.header("Access-Control-Allow-Origin","*");
     const result = {}
     const game = gameContainer.getGame(request.body.gameToken);
@@ -180,6 +194,58 @@ app.post('/chesslike/play',jsonParsor,function(request,response){
     }
     response.send(JSON.stringify(result))
 });
+
+app.post('/chesslike/play_single',jsonParsor,function(request,response){
+    response.header("Access-Control-Allow-Origin","*");
+    const result = {}
+    const game = singleGameContainer.getGame(request.body.gameToken);
+    const chessGameManager = game.gameManager;
+
+    if(request.body.status === 'start'){
+        singleGameContainer.joinGame(request.body.gameToken,request.sessionID);
+        singleGameContainer.joinGame(request.body.gameToken,request.sessionID);
+
+        const boardData = dv.makeBoard(chessGameManager.getBoardAxis().RANK,chessGameManager.getBoardAxis().FILE);
+        const flatBoardData = boardData.flatMap((rank)=>rank);
+
+        result.cells = flatBoardData;
+        result.boardAxis = chessGameManager.getBoardAxis();
+        result.gameContext = chessGameManager.getGameContext();
+        result.gameToken = request.body.gameToken;
+        result.playerKey = request.sessionID;
+        result.player = {white:game.white, black:game.black};
+
+    }else if(request.body.status === 'quit'){
+        singleGameContainer.removeGame(request.body.gameToken);
+        result.player = {};
+
+    }else if(request.body.status == 'select'){
+        singleGameContainer.clearCount(request.body.gameToken);
+        try{
+            chessGameManager.selectPosition(request.body.selectedPositionId);
+            result.gameContext = chessGameManager.getGameContext();
+            result.pathContext = chessGameManager.getMovePath();
+            result.gameToken = request.body.gameToken;
+        }catch(err){
+            result.message = err.message;
+        }
+
+    }else if(request.body.status == 'promotion'){
+        chessGameManager.promotion(request.body.selectedPositionId);
+        result.gameContext = chessGameManager.getGameContext();
+
+    }else if(request.body.status == 'undo'){
+        chessGameManager.undo()
+        result.gameContext = chessGameManager.getGameContext();
+
+    }else if(request.body.status == 'reset'){
+        chessGameManager.reset()
+        result.gameContext = chessGameManager.getGameContext();
+
+    }
+
+    response.send(JSON.stringify(result))
+})
 
 app.listen(8000, function(){
     console.log('Listening at 8000');

@@ -1,30 +1,25 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import './Buttons.css'
 import * as boardActions from '../modules/board'
 import { useNavigate } from 'react-router-dom';
-import getAjax from '../utils/ajax';
 
-function Buttons(){
+function Buttons({playType}){
 
     const navigate = useNavigate();
-    const {gameToken,playerKey} = useSelector(state=>state.boardData);
     const dispatch = useDispatch();
 
     const undo = () => {
-        const ajax = getAjax('/play');
-        ajax.request({status:'undo',gameToken:gameToken},(result)=>{
-            dispatch(boardActions.lay((result.gameContext.boardContext)));
-        },true);
+        dispatch(boardActions.undo())
     }
     const moveOut = () => {
-        dispatch(boardActions.quit(gameToken,playerKey,'quit'))
+        dispatch(boardActions.quit('quit'))
         navigate('/');
     }
 
     return (
         <div className='container'>
-            {/*<div className="button undo" onClick={undo}>실행취소</div>*/}
-            <div className="button moveOut" onClick={moveOut}>나가기</div>
+        <div className="button moveOut" onClick={moveOut}>나가기</div>
+        {playType==='single'?<div className="button undo" onClick={undo}>실행취소</div>:undefined}
         </div>
     )
 }

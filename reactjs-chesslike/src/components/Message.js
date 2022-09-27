@@ -1,25 +1,27 @@
-import React, {useRef} from "react";
+import React, {useEffect, useRef} from "react";
 import { useDispatch } from "react-redux";
 
 import './Message.css';
-import * as messageActions from '../modules/message'
+import * as messageActions from '../modules/message';
 
-function Message(props){
+function Message({message}){
 
     const dispatch = useDispatch()
 
     const dialog = useRef()
-    if(props.children !== undefined && dialog.current && !dialog.current.open){
-        dialog.current.showModal();
-    }
-
+    useEffect(()=>{
+        if(message && dialog.current && !dialog.current.open){
+            dialog.current.showModal();
+        }
+    },[message])
+    
     const click = () => {
         dispatch(messageActions.clear());
         dialog.current.close();
     };
     
     return (
-        <dialog className="messageModal" ref={dialog} onClick={click}>{props.children}</dialog>
+        <dialog className="messageModal" ref={dialog} onClick={click}>{message}</dialog>
     )
 }
 

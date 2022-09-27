@@ -7,8 +7,11 @@ import * as listActions from '../modules/list'
 const ListContainer = () => {
     const navigate = useNavigate();
 
-    function click(){
+    function newGame(){
         navigate('/game/none');
+    }
+    function singleGame(){
+        navigate('/game/single');
     }
     function itemClick(e){
         navigate('/game/'+e.target.textContent);
@@ -19,16 +22,15 @@ const ListContainer = () => {
         dispatch(listActions.load())
     },500)
 
-    const listData = useSelector(state=>state.listData.list);
-    const list = [];
-    list.push(...listData.map((obj)=>{
-        return <li className="list" key={obj.id} value={obj.id} onClick={itemClick}>{obj.id}</li>
-    }));
+    const list = [...useSelector(state=>state.listData.list).map((obj)=>
+        <li className="list" key={obj.id} value={obj.id} onClick={itemClick}>{obj.id}</li>
+    )];
 
     return(
         <div>
             <div className="listContainer">
-                <div className="newGame" onClick={click}>새 게임</div>
+                <div className="newGame" onClick={newGame}>새 게임</div>
+                <div className="newGame" onClick={singleGame}>혼자하기</div>
             </div>
             <ul>
                 {list}

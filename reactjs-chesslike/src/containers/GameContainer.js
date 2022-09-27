@@ -3,21 +3,25 @@ import BoardContainer from "./BoardContainer"
 import getAjax from "../utils/ajax";
 import { useDispatch } from "react-redux";
 import * as boardActions from '../modules/board'
+import { useEffect } from "react";
 
 const GameContainer = () => {
 
     const params = useParams();
-    let gameToken = params.gameToken;
-    if(gameToken === 'none'){
-        const ajax = getAjax('/setup')
-        ajax.request({},function(result){
-            gameToken = result.gameToken;
-        },false)
-    }
     const dispath = useDispatch();
-    dispath(boardActions.setup(gameToken));
+    
+    useEffect(()=>{
+        let gameToken = params.gameToken;
+        if(gameToken === 'none'){
+            const ajax = getAjax('/setup')
+            ajax.request({},function(result){
+                gameToken = result.gameToken;
+            },false)
+        }
+        dispath(boardActions.setup(gameToken,'multi'));
+    })
     return(
-        <BoardContainer gameToken={gameToken}></BoardContainer>
+        <BoardContainer></BoardContainer>
     )
 }
 
